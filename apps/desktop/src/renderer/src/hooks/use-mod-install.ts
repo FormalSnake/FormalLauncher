@@ -23,6 +23,7 @@ export function useContentInstall() {
       projectId: string,
       projectName: string,
       versionId?: string,
+      iconUrl?: string,
     ) => {
       setInstalling(true)
       setError(null)
@@ -60,6 +61,7 @@ export function useContentInstall() {
           name: projectName,
           fileName: file.filename,
           enabled: true,
+          iconUrl,
         }
         useInstancesStore.getState().addMod(instanceId, modEntry)
 
@@ -147,6 +149,7 @@ export function useContentInstall() {
       projectId: string,
       projectName: string,
       versionId?: string,
+      iconUrl?: string,
     ) => {
       setInstalling(true)
       setError(null)
@@ -180,6 +183,7 @@ export function useContentInstall() {
           versionId: version.id,
           name: projectName,
           fileName: file.filename,
+          iconUrl,
         }
         useInstancesStore.getState().addResourcePack(instanceId, entry)
       } catch (err) {

@@ -129,6 +129,7 @@ function BrowseCard({
           projectId={project.project_id}
           projectName={project.title}
           projectType={type === 'resourcepack' ? 'resourcepack' : 'mod'}
+          iconUrl={project.icon_url}
           open={installOpen}
           onOpenChange={setInstallOpen}
         />

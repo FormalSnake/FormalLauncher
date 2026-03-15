@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,8 +15,7 @@ import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoaderBadge } from '@/components/shared/loader-badge'
 import { GameTerminal } from '@/components/shared/game-terminal'
-import { ModCard } from '@/components/shared/mod-card'
-import { AddContentDialog } from '@/components/shared/add-content-dialog'
+import { ContentTable } from '@/components/shared/content-table'
 import { useInstancesStore } from '@/store/instances.store'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useGameStore } from '@/store/game.store'
@@ -24,6 +23,7 @@ import { useSettingsStore } from '@/store/settings.store'
 import { useVersions } from '@/hooks/use-versions'
 import { useLaunch } from '@/hooks/use-launch'
 import { useContentInstall } from '@/hooks/use-mod-install'
+import { useModrinthProjects } from '@/hooks/use-modrinth'
 import {
   PlayIcon,
   PackageIcon,
@@ -31,7 +31,6 @@ import {
   ShieldCheckIcon,
   PlusIcon,
   ImageIcon,
-  Trash2Icon,
 } from 'lucide-react'
 
 export function InstanceDetailPage() {
@@ -56,8 +55,31 @@ export function InstanceDetailPage() {
     instance?.minecraftVersion ?? '',
   )
   const [verifying, setVerifying] = useState(false)
-  const [addModsOpen, setAddModsOpen] = useState(false)
-  const [addRpOpen, setAddRpOpen] = useState(false)
+
+  // Collect project IDs missing iconUrl for batch fetch
+  const missingIconIds = useMemo(() => {
+    if (!instance) return []
+    const ids: string[] = []
+    for (const mod of instance.mods) {
+      if (!mod.iconUrl) ids.push(mod.projectId)
+    }
+    for (const rp of instance.resourcePacks) {
+      if (!rp.iconUrl) ids.push(rp.projectId)
+    }
+    return [...new Set(ids)]
+  }, [instance])
+
+  const { data: projects } = useModrinthProjects(missingIconIds)
+
+  const iconMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    if (projects) {
+      for (const p of projects) {
+        if (p.icon_url) map[p.id] = p.icon_url
+      }
+    }
+    return map
+  }, [projects])
 
   if (!instance) {
     return (
@@ -170,24 +192,20 @@ export function InstanceDetailPage() {
                   size="sm"
                   variant="outline"
                   className="gap-2"
-                  onClick={() => setAddModsOpen(true)}
+                  onClick={() => navigate('/browse?tab=mod')}
                 >
                   <PlusIcon className="size-4" />
                   Add Mods
                 </Button>
               </div>
               {instance.mods.length > 0 ? (
-                <div className="grid gap-2">
-                  {instance.mods.map((mod) => (
-                    <ModCard
-                      key={mod.projectId}
-                      variant="installed"
-                      mod={mod}
-                      onToggle={() => toggleMod(instance.id, mod)}
-                      onRemove={() => removeMod(instance.id, mod)}
-                    />
-                  ))}
-                </div>
+                <ContentTable
+                  items={instance.mods}
+                  contentType="mod"
+                  iconMap={iconMap}
+                  onToggle={(mod) => toggleMod(instance.id, mod)}
+                  onRemove={(mod) => removeMod(instance.id, mod as any)}
+                />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
                   <PackageIcon className="size-6" />
@@ -204,34 +222,19 @@ export function InstanceDetailPage() {
                   size="sm"
                   variant="outline"
                   className="gap-2"
-                  onClick={() => setAddRpOpen(true)}
+                  onClick={() => navigate('/browse?tab=resourcepack')}
                 >
                   <PlusIcon className="size-4" />
                   Add Resource Packs
                 </Button>
               </div>
               {instance.resourcePacks.length > 0 ? (
-                <div className="grid gap-2">
-                  {instance.resourcePacks.map((rp) => (
-                    <div
-                      key={rp.projectId}
-                      className="flex items-center justify-between rounded-md border p-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <ImageIcon className="size-5 text-muted-foreground" />
-                        <span className="text-sm font-medium">{rp.name}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="size-8 p-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => removeResourcePack(instance.id, rp)}
-                      >
-                        <Trash2Icon className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                <ContentTable
+                  items={instance.resourcePacks}
+                  contentType="resourcepack"
+                  iconMap={iconMap}
+                  onRemove={(rp) => removeResourcePack(instance.id, rp as any)}
+                />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
                   <ImageIcon className="size-6" />
@@ -240,19 +243,6 @@ export function InstanceDetailPage() {
               )}
             </div>
           </div>
-
-          <AddContentDialog
-            instance={instance}
-            contentType="mod"
-            open={addModsOpen}
-            onOpenChange={setAddModsOpen}
-          />
-          <AddContentDialog
-            instance={instance}
-            contentType="resourcepack"
-            open={addRpOpen}
-            onOpenChange={setAddRpOpen}
-          />
         </TabsContent>
 
         <TabsContent value="logs" className="mt-4">

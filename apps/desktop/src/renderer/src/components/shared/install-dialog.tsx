@@ -23,6 +23,7 @@ interface InstallDialogProps {
   projectId: string
   projectName: string
   projectType: 'mod' | 'resourcepack'
+  iconUrl?: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -31,6 +32,7 @@ export function InstallDialog({
   projectId,
   projectName,
   projectType,
+  iconUrl,
   open,
   onOpenChange,
 }: InstallDialogProps) {
@@ -63,6 +65,7 @@ export function InstallDialog({
         projectId,
         projectName,
         selectedVersion || undefined,
+        iconUrl,
       )
     } else {
       await installResourcePack(
@@ -70,6 +73,7 @@ export function InstallDialog({
         projectId,
         projectName,
         selectedVersion || undefined,
+        iconUrl,
       )
     }
 

@@ -92,6 +92,15 @@ export async function getProject(idOrSlug: string): Promise<ModrinthProject> {
   return res.json()
 }
 
+export async function getProjects(ids: string[]): Promise<ModrinthProject[]> {
+  if (ids.length === 0) return []
+  const url = new URL(`${BASE_URL}/projects`)
+  url.searchParams.set('ids', JSON.stringify(ids))
+  const res = await fetch(url.toString(), { headers: HEADERS })
+  if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
+  return res.json()
+}
+
 // ── Version types and endpoints ──
 
 export interface ModrinthVersionFile {
