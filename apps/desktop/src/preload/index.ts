@@ -42,6 +42,9 @@ const minecraftAPI = {
   applyModpackOverrides: (extractedPath: string, instanceDir: string) =>
     ipcRenderer.invoke('minecraft:apply-modpack-overrides', extractedPath, instanceDir),
 
+  // Show in folder
+  showInFolder: (path: string) => ipcRenderer.invoke('minecraft:show-in-folder', path),
+
   // Image proxy (bypasses renderer CSP)
   fetchImage: (url: string) =>
     ipcRenderer.invoke('minecraft:fetch-image', url) as Promise<string>,

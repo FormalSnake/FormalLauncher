@@ -13,6 +13,7 @@ import { LoaderBadge } from '@/components/shared/loader-badge'
 import { useInstancesStore } from '@/store/instances.store'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useGameStore } from '@/store/game.store'
+import { useSettingsStore } from '@/store/settings.store'
 import { useLaunch } from '@/hooks/use-launch'
 import {
   PlayIcon,
@@ -20,6 +21,7 @@ import {
   TrashIcon,
   PencilIcon,
   LoaderIcon,
+  FolderOpenIcon,
 } from 'lucide-react'
 
 interface InstanceCardProps {
@@ -28,6 +30,7 @@ interface InstanceCardProps {
 
 export function InstanceCard({ instance }: InstanceCardProps) {
   const navigate = useNavigate()
+  const gameDirectory = useSettingsStore((s) => s.gameDirectory)
   const removeInstance = useInstancesStore((s) => s.removeInstance)
   const activeAccount = useMinecraftAccountsStore((s) => s.getActiveAccount())
   const { launchingInstanceId, runningInstanceId } = useGameStore()
@@ -93,6 +96,15 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                 >
                   <PencilIcon className="size-4" />
                   Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.minecraft.showInFolder(`${gameDirectory}/instances/${instance.id}`)
+                  }}
+                >
+                  <FolderOpenIcon className="size-4" />
+                  Show in Folder
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-destructive"

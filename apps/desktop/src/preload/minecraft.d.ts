@@ -71,6 +71,9 @@ interface MinecraftAPI {
   ): Promise<ModpackManifest>
   applyModpackOverrides(extractedPath: string, instanceDir: string): Promise<void>
 
+  // Show in folder
+  showInFolder(path: string): Promise<void>
+
   // Image proxy (bypasses renderer CSP)
   fetchImage(url: string): Promise<string | null>
 
