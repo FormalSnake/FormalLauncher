@@ -36,3 +36,24 @@ export interface DeviceCodeInfo {
   verificationUri: string
   expiresIn: number
 }
+
+export interface MinecraftSkin {
+  id: string
+  state: 'ACTIVE' | 'INACTIVE'
+  url: string
+  variant: 'CLASSIC' | 'SLIM'
+}
+
+export interface MinecraftCape {
+  id: string
+  state: 'ACTIVE' | 'INACTIVE'
+  url: string
+  alias: string
+}
+
+export interface MinecraftProfileFull {
+  id: string
+  name: string
+  skins: MinecraftSkin[]
+  capes: MinecraftCape[]
+}

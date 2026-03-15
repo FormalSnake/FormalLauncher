@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import {
   Dialog,
@@ -35,6 +35,10 @@ export function AccountsPage() {
             <Card key={account.id} size="sm">
               <CardContent className="flex items-center gap-4">
                 <Avatar>
+                  <AvatarImage
+                    src={`https://crafatar.com/avatars/${account.id}?size=64&overlay`}
+                    alt={account.name}
+                  />
                   <AvatarFallback>{account.name[0]}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">

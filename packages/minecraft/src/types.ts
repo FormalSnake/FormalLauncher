@@ -152,6 +152,29 @@ export interface GameProcess {
   kill(): void
 }
 
+// ── Skin / Cape ──
+
+export interface MinecraftSkin {
+  id: string
+  state: 'ACTIVE' | 'INACTIVE'
+  url: string
+  variant: 'CLASSIC' | 'SLIM'
+}
+
+export interface MinecraftCape {
+  id: string
+  state: 'ACTIVE' | 'INACTIVE'
+  url: string
+  alias: string
+}
+
+export interface MinecraftProfileFull {
+  id: string
+  name: string
+  skins: MinecraftSkin[]
+  capes: MinecraftCape[]
+}
+
 // ── Platform ──
 
 export type MojangOS = 'osx' | 'windows' | 'linux'

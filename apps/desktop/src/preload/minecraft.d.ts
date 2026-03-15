@@ -1,6 +1,7 @@
 import type {
   VersionManifest,
   MinecraftAccount,
+  MinecraftProfileFull,
   DownloadProgress,
   LaunchOptions,
 } from '@formallauncher/minecraft'
@@ -49,6 +50,11 @@ interface MinecraftAPI {
     modpackFileUrl: string,
   ): Promise<ModpackManifest>
   applyModpackOverrides(extractedPath: string, instanceDir: string): Promise<void>
+
+  // Skin
+  getSkinProfile(accessToken: string): Promise<MinecraftProfileFull>
+  uploadSkin(accessToken: string, variant: 'classic' | 'slim'): Promise<boolean | null>
+  setActiveCape(accessToken: string, capeId: string | null): Promise<void>
 
   // Events
   onDownloadProgress(callback: (progress: DownloadProgress) => void): () => void

@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./fabric": "./src/fabric/index.ts"
+    "./fabric": "./src/fabric/index.ts",
+    "./skin": "./src/skin/index.ts"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",

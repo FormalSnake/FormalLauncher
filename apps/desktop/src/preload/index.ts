@@ -42,6 +42,14 @@ const minecraftAPI = {
   applyModpackOverrides: (extractedPath: string, instanceDir: string) =>
     ipcRenderer.invoke('minecraft:apply-modpack-overrides', extractedPath, instanceDir),
 
+  // Skin
+  getSkinProfile: (accessToken: string) =>
+    ipcRenderer.invoke('minecraft:get-skin-profile', accessToken),
+  uploadSkin: (accessToken: string, variant: 'classic' | 'slim') =>
+    ipcRenderer.invoke('minecraft:upload-skin', accessToken, variant),
+  setActiveCape: (accessToken: string, capeId: string | null) =>
+    ipcRenderer.invoke('minecraft:set-active-cape', accessToken, capeId),
+
   // Event listeners
   onDownloadProgress: (callback: (progress: unknown) => void) => {
     const handler = (_event: unknown, progress: unknown): void => callback(progress)

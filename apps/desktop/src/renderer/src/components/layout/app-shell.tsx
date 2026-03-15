@@ -21,6 +21,7 @@ import {
   BoxesIcon,
   CompassIcon,
   UsersIcon,
+  ShirtIcon,
   SettingsIcon,
 } from 'lucide-react'
 
@@ -32,6 +33,7 @@ const mainNav = [
 
 const bottomNav = [
   { to: '/accounts', icon: UsersIcon, label: 'Accounts' },
+  { to: '/skins', icon: ShirtIcon, label: 'Skins' },
   { to: '/settings', icon: SettingsIcon, label: 'Settings' },
 ]
 

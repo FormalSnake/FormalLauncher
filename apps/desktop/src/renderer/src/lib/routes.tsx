@@ -6,6 +6,7 @@ import { InstanceDetailPage } from '@/pages/instance-detail'
 import { BrowsePage } from '@/pages/browse'
 import { ProjectDetailPage } from '@/pages/project-detail'
 import { AccountsPage } from '@/pages/accounts'
+import { SkinsPage } from '@/pages/skins'
 import { SettingsPage } from '@/pages/settings'
 
 export const router = createHashRouter([
@@ -18,6 +19,7 @@ export const router = createHashRouter([
       { path: 'browse', element: <BrowsePage /> },
       { path: 'browse/:slug', element: <ProjectDetailPage /> },
       { path: 'accounts', element: <AccountsPage /> },
+      { path: 'skins', element: <SkinsPage /> },
       { path: 'settings', element: <SettingsPage /> },
     ],
   },

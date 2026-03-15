@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import {
@@ -156,6 +156,34 @@ function setupMinecraftIPC(): void {
     async (_event, extractedPath: string, instanceDir: string) => {
       const { applyModpackOverrides } = await import('@formallauncher/minecraft/fabric')
       return applyModpackOverrides(extractedPath, instanceDir)
+    },
+  )
+
+  ipcMain.handle('minecraft:get-skin-profile', async (_event, accessToken: string) => {
+    const { getFullProfile } = await import('@formallauncher/minecraft/skin')
+    return getFullProfile(accessToken)
+  })
+
+  ipcMain.handle(
+    'minecraft:upload-skin',
+    async (_event, accessToken: string, variant: 'classic' | 'slim') => {
+      const result = await dialog.showOpenDialog({
+        title: 'Select Skin PNG',
+        filters: [{ name: 'PNG Images', extensions: ['png'] }],
+        properties: ['openFile'],
+      })
+      if (result.canceled || result.filePaths.length === 0) return null
+      const { uploadSkin } = await import('@formallauncher/minecraft/skin')
+      await uploadSkin(accessToken, result.filePaths[0], variant)
+      return true
+    },
+  )
+
+  ipcMain.handle(
+    'minecraft:set-active-cape',
+    async (_event, accessToken: string, capeId: string | null) => {
+      const { setActiveCape } = await import('@formallauncher/minecraft/skin')
+      return setActiveCape(accessToken, capeId)
     },
   )
 }
