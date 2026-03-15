@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useSearchParams } from 'react-router'
 import { SearchBar } from '@/components/shared/search-bar'
 import { ModCard } from '@/components/shared/mod-card'
 import { Button } from '@/components/ui/button'
@@ -8,12 +9,29 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 
 type Category = 'mod' | 'resourcepack' | 'modpack'
 const LIMIT = 20
+const validTabs: Category[] = ['mod', 'resourcepack', 'modpack']
 
 export function BrowsePage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = (validTabs.includes(searchParams.get('tab') as Category)
+    ? searchParams.get('tab')
+    : 'mod') as Category
+  const page = Math.max(1, Number(searchParams.get('page')) || 1)
+
+  const setTab = useCallback(
+    (t: Category) => setSearchParams({ tab: t, page: '1' }, { replace: true }),
+    [setSearchParams],
+  )
+  const setPage = useCallback(
+    (p: number | ((prev: number) => number)) => {
+      const next = typeof p === 'function' ? p(page) : p
+      setSearchParams({ tab, page: String(next) }, { replace: true })
+    },
+    [setSearchParams, tab, page],
+  )
+
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [tab, setTab] = useState<Category>('mod')
-  const [page, setPage] = useState(1)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
@@ -22,7 +40,7 @@ export function BrowsePage() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, tab])
+  }, [debouncedSearch])
 
   const offset = (page - 1) * LIMIT
   const { data, isLoading, error } = useModrinthSearch({

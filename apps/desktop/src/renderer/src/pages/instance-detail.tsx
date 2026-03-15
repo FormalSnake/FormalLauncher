@@ -22,7 +22,6 @@ import { useSettingsStore } from '@/store/settings.store'
 import { useVersions } from '@/hooks/use-versions'
 import { useLaunch } from '@/hooks/use-launch'
 import {
-  ArrowLeftIcon,
   PlayIcon,
   PackageIcon,
   LoaderIcon,
@@ -88,15 +87,6 @@ export function InstanceDetailPage() {
   return (
     <div>
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mb-4 gap-1"
-          onClick={() => navigate('/instances')}
-        >
-          <ArrowLeftIcon className="size-4" />
-          Back
-        </Button>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight">

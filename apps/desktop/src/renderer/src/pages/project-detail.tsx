@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams, useNavigate, useOutletContext } from 'react-router'
+import { useParams, useOutletContext } from 'react-router'
 import type { AppShellContext } from '@/components/layout/app-shell'
 import { useModrinthProject } from '@/hooks/use-modrinth'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import Markdown from 'react-markdown'
@@ -17,7 +16,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import {
-  ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   DownloadIcon,
@@ -44,7 +42,6 @@ function formatDate(dateStr: string): string {
 
 export function ProjectDetailPage() {
   const { slug } = useParams()
-  const navigate = useNavigate()
   const { setTitleOverride } = useOutletContext<AppShellContext>()
   const { data: project, isLoading, error } = useModrinthProject(slug ?? '')
 
@@ -83,15 +80,6 @@ export function ProjectDetailPage() {
   if (isLoading) {
     return (
       <div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mb-4 gap-1"
-          onClick={() => navigate('/browse')}
-        >
-          <ArrowLeftIcon className="size-4" />
-          Back
-        </Button>
         <div className="flex items-start gap-4">
           <Skeleton className="size-16 rounded-xl" />
           <div className="space-y-2">
@@ -112,9 +100,6 @@ export function ProjectDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
         <p className="text-muted-foreground">Project not found.</p>
-        <Button variant="outline" onClick={() => navigate('/browse')}>
-          Back to Browse
-        </Button>
       </div>
     )
   }
@@ -129,16 +114,6 @@ export function ProjectDetailPage() {
 
   return (
     <div>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="mb-4 gap-1"
-        onClick={() => navigate('/browse')}
-      >
-        <ArrowLeftIcon className="size-4" />
-        Back
-      </Button>
-
       <div className="flex items-start gap-4">
         {project.icon_url ? (
           <img
