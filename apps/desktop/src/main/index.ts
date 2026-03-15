@@ -369,18 +369,8 @@ function setupMinecraftIPC(): void {
       const destDir = join(gameDir, 'instances', instanceId)
       const mcDir = await findPrismGameDir(srcDir)
 
-      // Copy game directories
-      for (const folder of ['mods', 'resourcepacks', 'config', 'saves']) {
-        const srcFolder = join(mcDir, folder)
-        try {
-          await stat(srcFolder)
-          await cp(srcFolder, join(destDir, folder), { recursive: true })
-        } catch (err) {
-          if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-            console.error(`Failed to copy ${folder} from ${srcFolder}:`, err)
-          }
-        }
-      }
+      // Copy entire game directory contents
+      await cp(mcDir, destDir, { recursive: true })
 
       // Parse instance.cfg
       const cfg: Record<string, string> = {}
