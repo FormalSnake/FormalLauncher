@@ -5,10 +5,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin({ exclude: ['@formallauncher/shared'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['@formallauncher/shared', '@formallauncher/minecraft'] })],
   },
   preload: {
-    plugins: [externalizeDepsPlugin({ exclude: ['@formallauncher/shared'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['@formallauncher/shared', '@formallauncher/minecraft'] })],
   },
   renderer: {
     resolve: {

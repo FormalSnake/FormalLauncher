@@ -1,0 +1,11 @@
+{
+  "name": "@formallauncher/minecraft",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "prismarine-auth": "^2.5.0"
+  }
+}
