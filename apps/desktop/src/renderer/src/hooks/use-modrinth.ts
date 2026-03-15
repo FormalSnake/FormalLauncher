@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { searchProjects } from '@/lib/modrinth'
+import { searchProjects, getProject } from '@/lib/modrinth'
 
 export function useModrinthSearch(params: {
   query: string
@@ -16,5 +16,13 @@ export function useModrinthSearch(params: {
         limit: params.limit ?? 20,
         offset: params.offset,
       }),
+  })
+}
+
+export function useModrinthProject(idOrSlug: string) {
+  return useQuery({
+    queryKey: ['modrinth', 'project', idOrSlug],
+    queryFn: () => getProject(idOrSlug),
+    enabled: !!idOrSlug,
   })
 }

@@ -25,6 +25,38 @@ export interface ModrinthSearchHit {
   color: number | null
 }
 
+export interface ModrinthProject {
+  id: string
+  slug: string
+  project_type: string
+  team: string
+  title: string
+  description: string
+  body: string
+  icon_url: string
+  downloads: number
+  followers: number
+  categories: string[]
+  versions: string[]
+  license: { id: string; name: string; url: string | null }
+  client_side: string
+  server_side: string
+  gallery: {
+    url: string
+    featured: boolean
+    title: string | null
+    description: string | null
+    ordering: number
+  }[]
+  date_created: string
+  date_modified: string
+  source_url: string | null
+  issues_url: string | null
+  wiki_url: string | null
+  discord_url: string | null
+  donation_urls: { id: string; platform: string; url: string }[]
+}
+
 export interface ModrinthSearchResponse {
   hits: ModrinthSearchHit[]
   offset: number
@@ -48,6 +80,14 @@ export async function searchProjects(params: {
   if (params.offset !== undefined) url.searchParams.set('offset', String(params.offset))
 
   const res = await fetch(url.toString(), { headers: HEADERS })
+  if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
+  return res.json()
+}
+
+export async function getProject(idOrSlug: string): Promise<ModrinthProject> {
+  const res = await fetch(`${BASE_URL}/project/${encodeURIComponent(idOrSlug)}`, {
+    headers: HEADERS,
+  })
   if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
   return res.json()
 }

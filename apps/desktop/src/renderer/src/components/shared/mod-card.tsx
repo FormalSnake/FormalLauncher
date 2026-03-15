@@ -1,5 +1,6 @@
 import type { ModEntry } from '@formallauncher/shared'
 import type { ModrinthSearchHit } from '@/lib/modrinth'
+import { useNavigate } from 'react-router'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -38,8 +39,14 @@ export function ModCard(props: ModCardProps) {
     )
   }
 
+  const navigate = useNavigate()
+
   return (
-    <Card size="sm">
+    <Card
+      size="sm"
+      className="cursor-pointer transition-colors hover:bg-accent/50"
+      onClick={() => navigate(`/browse/${props.project.slug}`)}
+    >
       <CardContent className="flex items-center gap-4">
         {props.project.icon_url ? (
           <img
@@ -68,7 +75,7 @@ export function ModCard(props: ModCardProps) {
             <DownloadIcon className="size-3" />
             {formatDownloads(props.project.downloads)}
           </span>
-          <Button size="sm">Install</Button>
+          <Button size="sm" onClick={(e) => e.stopPropagation()}>Install</Button>
         </div>
       </CardContent>
     </Card>
