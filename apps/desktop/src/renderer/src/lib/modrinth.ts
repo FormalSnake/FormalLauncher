@@ -48,8 +48,8 @@ export interface ModrinthProject {
     description: string | null
     ordering: number
   }[]
-  date_created: string
-  date_modified: string
+  published: string
+  updated: string
   source_url: string | null
   issues_url: string | null
   wiki_url: string | null

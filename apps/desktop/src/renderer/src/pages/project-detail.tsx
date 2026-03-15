@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import {
   Dialog,
   DialogContent,
@@ -247,7 +248,24 @@ export function ProjectDetailPage() {
 
       <div className="mt-6 grid grid-cols-[1fr_280px] gap-6">
         <div className="prose prose-sm prose-invert max-w-none">
-          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{project.body}</Markdown>
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[
+              rehypeRaw,
+              [rehypeSanitize, {
+                ...defaultSchema,
+                tagNames: [...(defaultSchema.tagNames ?? []), 'iframe', 'video', 'source'],
+                attributes: {
+                  ...defaultSchema.attributes,
+                  iframe: ['src', 'width', 'height', 'frameBorder', 'allow', 'allowFullScreen', 'title', 'style'],
+                  video: ['src', 'width', 'height', 'controls', 'autoPlay', 'loop', 'muted', 'poster', 'style'],
+                  source: ['src', 'type'],
+                },
+              }],
+            ]}
+          >
+            {project.body}
+          </Markdown>
         </div>
 
         <div className="space-y-4">
@@ -260,9 +278,9 @@ export function ProjectDetailPage() {
               <div className="flex items-center gap-2">
                 <CalendarIcon className="size-4 text-muted-foreground" />
                 <div>
-                  <div>Created {formatDate(project.date_created)}</div>
+                  <div>Created {formatDate(project.published)}</div>
                   <div className="text-muted-foreground">
-                    Updated {formatDate(project.date_modified)}
+                    Updated {formatDate(project.updated)}
                   </div>
                 </div>
               </div>
