@@ -84,6 +84,7 @@ bun run db:studio        # Open Drizzle Studio
 - API calls happen from the Electron main process (not renderer)
 - No server proxy — desktop talks to Modrinth directly
 - Features: mod search/install, resource pack search/install, modpack support, multi-instance management
+- Example Modrinth API usage is implemented for display only (not yet wired to real functionality)
 
 ## Features
 
