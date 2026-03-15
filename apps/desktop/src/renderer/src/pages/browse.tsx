@@ -1,21 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/shared/page-header'
 import { SearchBar } from '@/components/shared/search-bar'
 import { ModCard } from '@/components/shared/mod-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { mockModrinthResults } from '@/data/mock'
+import { useModrinthSearch } from '@/hooks/use-modrinth'
 
 type Category = 'mod' | 'resourcepack' | 'modpack'
 
 export function BrowsePage() {
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [tab, setTab] = useState<Category>('mod')
 
-  const filtered = mockModrinthResults.filter(
-    (p) =>
-      p.category === tab &&
-      p.name.toLowerCase().includes(search.toLowerCase())
-  )
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  const { data, isLoading, error } = useModrinthSearch({
+    query: debouncedSearch,
+    projectType: tab,
+  })
 
   return (
     <div>
@@ -38,10 +43,20 @@ export function BrowsePage() {
 
         <TabsContent value={tab} className="mt-0">
           <div className="grid gap-2">
-            {filtered.map((project) => (
-              <ModCard key={project.id} variant="browse" project={project} />
+            {isLoading && (
+              <p className="py-12 text-center text-sm text-muted-foreground">
+                Loading...
+              </p>
+            )}
+            {error && (
+              <p className="py-12 text-center text-sm text-muted-foreground">
+                Failed to load results. Please try again.
+              </p>
+            )}
+            {data?.hits.map((project) => (
+              <ModCard key={project.project_id} variant="browse" project={project} />
             ))}
-            {filtered.length === 0 && (
+            {data && data.hits.length === 0 && (
               <p className="py-12 text-center text-sm text-muted-foreground">
                 No results found.
               </p>

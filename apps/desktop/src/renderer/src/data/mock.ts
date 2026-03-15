@@ -60,29 +60,6 @@ export const mockUser: User = {
   name: 'Steve',
 }
 
-export interface MockModrinthProject {
-  id: string
-  name: string
-  description: string
-  author: string
-  downloads: number
-  category: 'mod' | 'resourcepack' | 'modpack'
-  iconUrl?: string
-}
-
-export const mockModrinthResults: MockModrinthProject[] = [
-  { id: 'p1', name: 'Sodium', description: 'A modern rendering engine for Minecraft which greatly improves frame rates', author: 'CaffeineMC', downloads: 45_200_000, category: 'mod' },
-  { id: 'p2', name: 'Lithium', description: 'No-compromises game logic/server optimization mod', author: 'CaffeineMC', downloads: 22_100_000, category: 'mod' },
-  { id: 'p3', name: 'Iris Shaders', description: 'A modern shaders mod for Minecraft meant to be compatible with Sodium', author: 'IrisShaders', downloads: 32_500_000, category: 'mod' },
-  { id: 'p4', name: 'Fabric API', description: 'Lightweight and modular API providing common hooks and utilities', author: 'FabricMC', downloads: 68_000_000, category: 'mod' },
-  { id: 'p5', name: 'Mod Menu', description: 'Adds a mod menu to view the list of mods you have installed', author: 'TerraformersMC', downloads: 28_700_000, category: 'mod' },
-  { id: 'p6', name: 'Faithful 32x', description: 'A faithful 32x resource pack that stays true to Minecraft', author: 'Faithful', downloads: 12_400_000, category: 'resourcepack' },
-  { id: 'p7', name: 'Stay True', description: 'A vanilla-style resource pack with connected textures and more', author: 'haimcyfly', downloads: 8_900_000, category: 'resourcepack' },
-  { id: 'p8', name: 'Fabulously Optimized', description: 'A modpack focused on performance and graphics enhancements', author: 'robotkoer', downloads: 5_600_000, category: 'modpack' },
-  { id: 'p9', name: 'Simply Optimized', description: 'A lightweight modpack that improves client performance', author: 'HyperSMP', downloads: 3_200_000, category: 'modpack' },
-  { id: 'p10', name: 'Create', description: 'Building tools and aesthetic technology', author: 'simibubi', downloads: 41_300_000, category: 'mod' },
-]
-
 export interface MockMinecraftAccount {
   id: string
   username: string

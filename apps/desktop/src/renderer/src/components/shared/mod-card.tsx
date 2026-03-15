@@ -1,5 +1,5 @@
 import type { ModEntry } from '@formallauncher/shared'
-import type { MockModrinthProject } from '@/data/mock'
+import type { ModrinthSearchHit } from '@/lib/modrinth'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -18,7 +18,7 @@ interface InstalledModCardProps {
 
 interface BrowseModCardProps {
   variant: 'browse'
-  project: MockModrinthProject
+  project: ModrinthSearchHit
 }
 
 type ModCardProps = InstalledModCardProps | BrowseModCardProps
@@ -41,12 +41,20 @@ export function ModCard(props: ModCardProps) {
   return (
     <Card size="sm">
       <CardContent className="flex items-center gap-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-          <PackageIcon className="size-5 text-muted-foreground" />
-        </div>
+        {props.project.icon_url ? (
+          <img
+            src={props.project.icon_url}
+            alt={props.project.title}
+            className="size-10 shrink-0 rounded-lg"
+          />
+        ) : (
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <PackageIcon className="size-5 text-muted-foreground" />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{props.project.name}</span>
+            <span className="text-sm font-medium">{props.project.title}</span>
             <span className="text-xs text-muted-foreground">
               by {props.project.author}
             </span>
