@@ -52,6 +52,33 @@ export function ProjectDetailPage() {
     return () => setTitleOverride(null)
   }, [project, setTitleOverride])
 
+  const sortedGallery = project?.gallery
+    ?.slice()
+    .sort((a, b) => a.ordering - b.ordering) ?? []
+
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const selectedImage = selectedIndex !== null ? sortedGallery[selectedIndex] : null
+
+  const goNext = useCallback(() => {
+    setSelectedIndex((i) =>
+      i !== null && i < sortedGallery.length - 1 ? i + 1 : i
+    )
+  }, [sortedGallery.length])
+
+  const goPrev = useCallback(() => {
+    setSelectedIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+  }, [])
+
+  useEffect(() => {
+    if (selectedIndex === null) return
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'ArrowRight') goNext()
+      else if (e.key === 'ArrowLeft') goPrev()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [selectedIndex, goNext, goPrev])
+
   if (isLoading) {
     return (
       <div>
@@ -90,33 +117,6 @@ export function ProjectDetailPage() {
       </div>
     )
   }
-
-  const sortedGallery = project.gallery
-    .slice()
-    .sort((a, b) => a.ordering - b.ordering)
-
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const selectedImage = selectedIndex !== null ? sortedGallery[selectedIndex] : null
-
-  const goNext = useCallback(() => {
-    setSelectedIndex((i) =>
-      i !== null && i < sortedGallery.length - 1 ? i + 1 : i
-    )
-  }, [sortedGallery.length])
-
-  const goPrev = useCallback(() => {
-    setSelectedIndex((i) => (i !== null && i > 0 ? i - 1 : i))
-  }, [])
-
-  useEffect(() => {
-    if (selectedIndex === null) return
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'ArrowRight') goNext()
-      else if (e.key === 'ArrowLeft') goPrev()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [selectedIndex, goNext, goPrev])
 
   const links = [
     project.source_url && { label: 'Source', url: project.source_url },

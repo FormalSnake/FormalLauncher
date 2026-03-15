@@ -47,6 +47,11 @@ body {
   overflow: hidden;
 }
 
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 .drag-region {
   -webkit-app-region: drag;
 }
