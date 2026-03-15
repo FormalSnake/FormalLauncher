@@ -5,11 +5,11 @@ import { mkdir } from 'node:fs/promises'
 export function getDefaultGameDir(): string {
   switch (platform()) {
     case 'win32':
-      return join(process.env['APPDATA'] ?? homedir(), '.minecraft')
+      return join(process.env['APPDATA'] ?? homedir(), 'formallauncher')
     case 'darwin':
-      return join(homedir(), 'Library', 'Application Support', 'minecraft')
+      return join(homedir(), 'Library', 'Application Support', 'formallauncher')
     default:
-      return join(homedir(), '.minecraft')
+      return join(homedir(), '.formallauncher')
   }
 }
 

@@ -25,8 +25,9 @@ export const useSettingsStore = create<SettingsState>()(
 
       initialize: async () => {
         if (get().initialized) return
-        if (!get().gameDirectory) {
-          const dir = await window.minecraft.getDefaultGameDir()
+        const dir = await window.minecraft.getDefaultGameDir()
+        const current = get().gameDirectory
+        if (!current || current.endsWith('.minecraft') || current.endsWith('/minecraft')) {
           set({ gameDirectory: dir })
         }
         set({ initialized: true })
