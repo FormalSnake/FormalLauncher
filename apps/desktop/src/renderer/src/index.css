@@ -55,6 +55,14 @@ body {
   -webkit-app-region: no-drag;
 }
 
+.prose p:has(> a > img):not(:has(> :not(a))) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

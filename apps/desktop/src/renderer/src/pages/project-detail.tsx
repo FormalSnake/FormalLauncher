@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate, useOutletContext } from 'react-router'
 import type { AppShellContext } from '@/components/layout/app-shell'
 import { useModrinthProject } from '@/hooks/use-modrinth'
@@ -10,7 +10,15 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import {
   ArrowLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   DownloadIcon,
   HeartIcon,
   ExternalLinkIcon,
@@ -83,6 +91,33 @@ export function ProjectDetailPage() {
     )
   }
 
+  const sortedGallery = project.gallery
+    .slice()
+    .sort((a, b) => a.ordering - b.ordering)
+
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const selectedImage = selectedIndex !== null ? sortedGallery[selectedIndex] : null
+
+  const goNext = useCallback(() => {
+    setSelectedIndex((i) =>
+      i !== null && i < sortedGallery.length - 1 ? i + 1 : i
+    )
+  }, [sortedGallery.length])
+
+  const goPrev = useCallback(() => {
+    setSelectedIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+  }, [])
+
+  useEffect(() => {
+    if (selectedIndex === null) return
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'ArrowRight') goNext()
+      else if (e.key === 'ArrowLeft') goPrev()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [selectedIndex, goNext, goPrev])
+
   const links = [
     project.source_url && { label: 'Source', url: project.source_url },
     project.issues_url && { label: 'Issues', url: project.issues_url },
@@ -136,20 +171,79 @@ export function ProjectDetailPage() {
         </div>
       </div>
 
-      {project.gallery.length > 0 && (
+      {sortedGallery.length > 0 && (
         <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
-          {project.gallery
-            .sort((a, b) => a.ordering - b.ordering)
-            .map((img) => (
+          {sortedGallery.map((img, i) => (
+            <button
+              key={img.url}
+              type="button"
+              className="shrink-0 cursor-pointer overflow-hidden rounded-lg"
+              onClick={() => setSelectedIndex(i)}
+            >
               <img
-                key={img.url}
                 src={img.url}
                 alt={img.title ?? ''}
-                className="h-40 shrink-0 rounded-lg object-cover"
+                className="h-40 object-cover transition-transform hover:scale-105"
               />
-            ))}
+            </button>
+          ))}
         </div>
       )}
+
+      <Dialog
+        open={selectedIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedIndex(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-5xl p-0 overflow-hidden" showCloseButton>
+          {selectedImage && (
+            <div className="flex flex-col">
+              <div className="relative flex items-center justify-center bg-black/50">
+                {selectedIndex !== null && selectedIndex > 0 && (
+                  <button
+                    type="button"
+                    className="absolute left-2 z-10 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+                    onClick={goPrev}
+                  >
+                    <ChevronLeftIcon className="size-5" />
+                  </button>
+                )}
+                <img
+                  src={selectedImage.url}
+                  alt={selectedImage.title ?? ''}
+                  className="max-h-[80vh] w-full object-contain"
+                />
+                {selectedIndex !== null &&
+                  selectedIndex < sortedGallery.length - 1 && (
+                    <button
+                      type="button"
+                      className="absolute right-2 z-10 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
+                      onClick={goNext}
+                    >
+                      <ChevronRightIcon className="size-5" />
+                    </button>
+                  )}
+              </div>
+              {(selectedImage.title || selectedImage.description) && (
+                <div className="p-4">
+                  <DialogTitle>
+                    {selectedImage.title || 'Gallery Image'}
+                  </DialogTitle>
+                  {selectedImage.description && (
+                    <DialogDescription className="mt-1">
+                      {selectedImage.description}
+                    </DialogDescription>
+                  )}
+                </div>
+              )}
+              {!selectedImage.title && !selectedImage.description && (
+                <DialogTitle className="sr-only">Gallery Image</DialogTitle>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="mt-6 grid grid-cols-[1fr_280px] gap-6">
         <div className="prose prose-sm prose-invert max-w-none">
