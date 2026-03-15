@@ -159,6 +159,18 @@ function setupMinecraftIPC(): void {
     },
   )
 
+  ipcMain.handle('minecraft:fetch-image', async (_event, url: string) => {
+    try {
+      const res = await fetch(url)
+      if (!res.ok) return null
+      const buffer = Buffer.from(await res.arrayBuffer())
+      const contentType = res.headers.get('content-type') || 'image/png'
+      return `data:${contentType};base64,${buffer.toString('base64')}`
+    } catch {
+      return null
+    }
+  })
+
   ipcMain.handle('minecraft:get-skin-profile', async (_event, accessToken: string) => {
     const { getFullProfile } = await import('@formallauncher/minecraft/skin')
     return getFullProfile(accessToken)

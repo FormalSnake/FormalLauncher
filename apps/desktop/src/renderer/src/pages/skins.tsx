@@ -13,7 +13,34 @@ import { SkinViewer } from '@/components/shared/skin-viewer'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useSkinProfile, useUploadSkin, useSetActiveCape } from '@/hooks/use-skin'
 import type { MinecraftSkin, MinecraftCape } from '@/types/minecraft'
+import { useProxiedImage } from '@/hooks/use-proxied-image'
 import { LoaderIcon, UploadIcon } from 'lucide-react'
+
+function CapeItem({
+  cape,
+  isActive,
+  onSelect,
+}: {
+  cape: MinecraftCape
+  isActive: boolean
+  onSelect: () => void
+}) {
+  const { data: src } = useProxiedImage(cape.url)
+  return (
+    <button
+      className="flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors hover:bg-accent"
+      onClick={onSelect}
+    >
+      {src ? (
+        <img src={src} alt={cape.alias} className="h-16 w-12 rounded object-cover" />
+      ) : (
+        <div className="flex h-16 w-12 items-center justify-center rounded bg-muted" />
+      )}
+      <span className="text-xs">{cape.alias}</span>
+      {isActive && <Badge variant="secondary">Active</Badge>}
+    </button>
+  )
+}
 
 export function SkinsPage() {
   const { accounts, activeAccountId, setActiveAccount } = useMinecraftAccountsStore()
@@ -76,7 +103,7 @@ export function SkinsPage() {
         <div className="flex gap-8">
           <div className="flex-shrink-0">
             <SkinViewer
-              skinUrl={activeSkin?.url ?? `https://crafatar.com/skins/${profile.id}`}
+              skinUrl={activeSkin?.url ?? `https://mc-heads.net/skin/${profile.id}`}
               capeUrl={activeCape?.url}
               slim={variant === 'slim'}
               width={300}
@@ -154,22 +181,15 @@ export function SkinsPage() {
                       {!activeCape && <Badge variant="secondary">Active</Badge>}
                     </button>
                     {profile.capes.map((cape: MinecraftCape) => (
-                      <button
+                      <CapeItem
                         key={cape.id}
-                        className="flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors hover:bg-accent"
-                        onClick={() => {
+                        cape={cape}
+                        isActive={cape.state === 'ACTIVE'}
+                        onSelect={() => {
                           if (!account?.accessToken) return
                           setCape.mutate({ accessToken: account.accessToken, capeId: cape.id })
                         }}
-                      >
-                        <img
-                          src={cape.url}
-                          alt={cape.alias}
-                          className="h-16 w-12 rounded object-cover"
-                        />
-                        <span className="text-xs">{cape.alias}</span>
-                        {cape.state === 'ACTIVE' && <Badge variant="secondary">Active</Badge>}
-                      </button>
+                      />
                     ))}
                   </div>
                   {setCape.isPending && (

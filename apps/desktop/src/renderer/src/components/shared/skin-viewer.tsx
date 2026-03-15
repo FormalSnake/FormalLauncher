@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { SkinViewer as SkinView3d, WalkingAnimation } from 'skinview3d'
+import { useProxiedImage } from '@/hooks/use-proxied-image'
 import { cn } from '@/lib/utils'
 
 interface SkinViewerProps {
@@ -22,14 +23,17 @@ export function SkinViewer({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewerRef = useRef<SkinView3d | null>(null)
 
+  const { data: proxiedSkin } = useProxiedImage(skinUrl)
+  const { data: proxiedCape } = useProxiedImage(capeUrl)
+
   useEffect(() => {
-    if (!canvasRef.current) return
+    if (!canvasRef.current || !proxiedSkin) return
 
     const viewer = new SkinView3d({
       canvas: canvasRef.current,
       width,
       height,
-      skin: skinUrl,
+      skin: proxiedSkin,
       model: slim ? 'slim' : 'default',
     })
     viewer.animation = new WalkingAnimation()
@@ -41,23 +45,23 @@ export function SkinViewer({
       viewer.dispose()
       viewerRef.current = null
     }
-  }, [width, height])
+  }, [width, height, proxiedSkin])
+
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer || !proxiedSkin) return
+    viewer.loadSkin(proxiedSkin, { model: slim ? 'slim' : 'default' })
+  }, [proxiedSkin, slim])
 
   useEffect(() => {
     const viewer = viewerRef.current
     if (!viewer) return
-    viewer.loadSkin(skinUrl, { model: slim ? 'slim' : 'default' })
-  }, [skinUrl, slim])
-
-  useEffect(() => {
-    const viewer = viewerRef.current
-    if (!viewer) return
-    if (capeUrl) {
-      viewer.loadCape(capeUrl)
+    if (proxiedCape) {
+      viewer.loadCape(proxiedCape)
     } else {
       viewer.resetCape()
     }
-  }, [capeUrl])
+  }, [proxiedCape])
 
   return (
     <canvas

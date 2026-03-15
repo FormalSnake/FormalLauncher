@@ -51,6 +51,9 @@ interface MinecraftAPI {
   ): Promise<ModpackManifest>
   applyModpackOverrides(extractedPath: string, instanceDir: string): Promise<void>
 
+  // Image proxy (bypasses renderer CSP)
+  fetchImage(url: string): Promise<string | null>
+
   // Skin
   getSkinProfile(accessToken: string): Promise<MinecraftProfileFull>
   uploadSkin(accessToken: string, variant: 'classic' | 'slim'): Promise<boolean | null>

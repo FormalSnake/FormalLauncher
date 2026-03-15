@@ -42,6 +42,10 @@ const minecraftAPI = {
   applyModpackOverrides: (extractedPath: string, instanceDir: string) =>
     ipcRenderer.invoke('minecraft:apply-modpack-overrides', extractedPath, instanceDir),
 
+  // Image proxy (bypasses renderer CSP)
+  fetchImage: (url: string) =>
+    ipcRenderer.invoke('minecraft:fetch-image', url) as Promise<string>,
+
   // Skin
   getSkinProfile: (accessToken: string) =>
     ipcRenderer.invoke('minecraft:get-skin-profile', accessToken),

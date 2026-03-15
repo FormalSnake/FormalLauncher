@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useProxiedImage } from '@/hooks/use-proxied-image'
 import { Separator } from '@/components/ui/separator'
 import {
   Dialog,
@@ -21,6 +22,18 @@ import {
   TrashIcon,
 } from 'lucide-react'
 
+function McAvatar({ id, name }: { id: string; name: string }) {
+  const { data: src } = useProxiedImage(
+    `https://mc-heads.net/avatar/${id}/64`,
+  )
+  return (
+    <Avatar>
+      {src && <AvatarImage src={src} alt={name} />}
+      <AvatarFallback>{name[0]}</AvatarFallback>
+    </Avatar>
+  )
+}
+
 export function AccountsPage() {
   const { accounts, activeAccountId, setActiveAccount, removeAccount } =
     useMinecraftAccountsStore()
@@ -34,13 +47,7 @@ export function AccountsPage() {
           {accounts.map((account) => (
             <Card key={account.id} size="sm">
               <CardContent className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarImage
-                    src={`https://crafatar.com/avatars/${account.id}?size=64&overlay`}
-                    alt={account.name}
-                  />
-                  <AvatarFallback>{account.name[0]}</AvatarFallback>
-                </Avatar>
+                <McAvatar id={account.id} name={account.name} />
                 <div className="flex-1">
                   <p className="text-sm font-medium">{account.name}</p>
                   <p className="text-xs text-muted-foreground">
