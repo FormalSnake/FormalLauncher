@@ -1,0 +1,10 @@
+{
+  "name": "formallauncher",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:server": "bun run --filter @formallauncher/server dev",
+    "dev:desktop": "bun run --filter @formallauncher/desktop dev",
+    "typecheck": "bun run --filter '*' typecheck"
+  }
+}
