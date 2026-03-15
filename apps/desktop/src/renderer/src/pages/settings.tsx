@@ -34,7 +34,7 @@ export function SettingsPage() {
               <Label>Default RAM Allocation (MB)</Label>
               <Slider
                 value={[defaultRamMb]}
-                onValueChange={(v) => setDefaultRamMb(v[0])}
+                onValueChange={(v) => setDefaultRamMb(Array.isArray(v) ? v[0] : v)}
                 min={1024}
                 max={16384}
                 step={512}

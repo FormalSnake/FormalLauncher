@@ -161,7 +161,7 @@ export function InstanceDetailPage() {
               <Label>RAM Allocation (MB)</Label>
               <Slider
                 value={[settingsRam]}
-                onValueChange={(v) => setSettingsRam(v[0])}
+                onValueChange={(v) => setSettingsRam(Array.isArray(v) ? v[0] : v)}
                 min={1024}
                 max={16384}
                 step={512}

@@ -80,7 +80,7 @@ export function InstancesPage() {
                 <Label>Minecraft Version</Label>
                 <Select
                   value={version}
-                  onValueChange={setVersion}
+                  onValueChange={(v) => v && setVersion(v)}
                   defaultValue={latest?.release}
                 >
                   <SelectTrigger>
@@ -104,7 +104,7 @@ export function InstancesPage() {
                 <Label>RAM (MB)</Label>
                 <Slider
                   value={[ramMb]}
-                  onValueChange={(v) => setRamMb(v[0])}
+                  onValueChange={(v) => setRamMb(Array.isArray(v) ? v[0] : v)}
                   min={1024}
                   max={16384}
                   step={512}
