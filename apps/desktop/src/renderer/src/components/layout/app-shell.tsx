@@ -37,7 +37,7 @@ export function AppShell() {
   return (
     <SidebarProvider className="h-svh">
       <Sidebar collapsible="none" className="border-r border-sidebar-border">
-        <SidebarHeader className="px-4 py-4">
+        <SidebarHeader className="drag-region px-4 py-4 pl-20">
           <span className="text-lg font-bold tracking-tight text-primary">
             FormalLauncher
           </span>
@@ -81,7 +81,8 @@ export function AppShell() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <ScrollArea className="h-screen">
+        <div className="drag-region h-[52px] shrink-0" />
+        <ScrollArea className="h-[calc(100vh-52px)]">
           <div className="p-6">
             <Outlet />
           </div>
