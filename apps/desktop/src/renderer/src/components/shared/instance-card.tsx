@@ -104,7 +104,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                   }}
                 >
                   <FolderOpenIcon className="size-4" />
-                  Show in Folder
+                  <span className="whitespace-nowrap">Show in Folder</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-destructive"

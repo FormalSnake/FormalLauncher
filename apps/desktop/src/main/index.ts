@@ -161,7 +161,7 @@ function setupMinecraftIPC(): void {
   )
 
   ipcMain.handle('minecraft:show-in-folder', async (_event, path: string) => {
-    shell.showItemInFolder(path)
+    await shell.openPath(path)
   })
 
   ipcMain.handle('minecraft:fetch-image', async (_event, url: string) => {
