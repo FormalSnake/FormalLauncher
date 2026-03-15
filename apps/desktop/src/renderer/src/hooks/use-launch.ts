@@ -37,13 +37,40 @@ export function useLaunch() {
       if (!instance) return
 
       const account = useMinecraftAccountsStore.getState().getActiveAccount()
-      if (!account || !account.accessToken) return
+      if (!account) return
 
       const settings = useSettingsStore.getState()
       const gameDir = settings.gameDirectory
 
       clearLog()
       setLaunching(instanceId)
+
+      let auth = {
+        id: account.id,
+        name: account.name,
+        accessToken: account.accessToken,
+      }
+
+      if (!account.accessToken) {
+        try {
+          appendLog('Refreshing authentication...')
+          const refreshed = await window.minecraft.authRefresh(
+            `${gameDir}/auth-cache`,
+          )
+          useMinecraftAccountsStore.getState().addAccount(refreshed)
+          auth = {
+            id: refreshed.id,
+            name: refreshed.name,
+            accessToken: refreshed.accessToken,
+          }
+        } catch (err) {
+          appendLog(
+            `Auth refresh failed: ${err instanceof Error ? err.message : String(err)}`,
+          )
+          setLaunching(null)
+          return
+        }
+      }
 
       const unsubProgress = window.minecraft.onDownloadProgress(
         (progress: unknown) => {
@@ -72,11 +99,7 @@ export function useLaunch() {
         await window.minecraft.launch({
           versionId: instance.minecraftVersion,
           gameDir,
-          auth: {
-            id: account.id,
-            name: account.name,
-            accessToken: account.accessToken,
-          },
+          auth,
           javaPath: settings.javaPath || undefined,
           jvmArgs: (instance.jvmArgs || settings.defaultJvmArgs || undefined)
             ?.split(' ')
