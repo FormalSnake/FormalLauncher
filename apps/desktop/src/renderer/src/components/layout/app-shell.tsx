@@ -46,9 +46,9 @@ export function AppShell() {
 
   return (
     <SidebarProvider className="h-svh">
-      <Sidebar collapsible="none" className="border-r border-sidebar-border">
+      <Sidebar collapsible="icon" className="border-r border-sidebar-border">
         <SidebarHeader className="drag-region border-b border-sidebar-border px-4 py-4 pl-24">
-          <span className="text-lg font-bold tracking-tight text-primary">
+          <span className="text-lg font-bold tracking-tight text-primary group-data-[collapsible=icon]:hidden">
             FormalLauncher
           </span>
         </SidebarHeader>
@@ -93,7 +93,7 @@ export function AppShell() {
       <SidebarInset className="flex flex-col overflow-hidden">
         <TitleBar titleOverride={titleOverride} />
         <ScrollArea className="flex-1 overflow-hidden">
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             <Outlet context={{ setTitleOverride } satisfies AppShellContext} />
           </div>
         </ScrollArea>

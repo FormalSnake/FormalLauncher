@@ -21,8 +21,8 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    minWidth: 900,
-    minHeight: 600,
+    minWidth: 700,
+    minHeight: 500,
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 22 },
     webPreferences: {

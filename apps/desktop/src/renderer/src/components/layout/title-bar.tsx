@@ -32,7 +32,7 @@ export function TitleBar({ titleOverride, description, action }: TitleBarProps) 
   const displayTitle = resolveTitle()
 
   return (
-    <div className="drag-region flex shrink-0 items-center border-b border-border px-6 py-4">
+    <div className="drag-region flex shrink-0 items-center border-b border-border px-4 py-3 md:px-6 md:py-4">
       <div className="flex flex-1 items-center gap-3">
         {isDetailRoute && (
           <button

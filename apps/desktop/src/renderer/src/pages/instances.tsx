@@ -202,7 +202,7 @@ export function InstancesPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={<Button className="gap-2" />}>
             <PlusIcon className="size-4" />
@@ -428,7 +428,7 @@ export function InstancesPage() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map((instance) => (
           <InstanceCard key={instance.id} instance={instance} />
         ))}

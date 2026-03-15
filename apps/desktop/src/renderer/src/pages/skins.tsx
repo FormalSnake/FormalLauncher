@@ -110,7 +110,7 @@ export function SkinsPage() {
       {accounts.length > 1 && (
         <div className="mb-6">
           <Select value={activeAccountId ?? ''} onValueChange={(v) => { if (v) setActiveAccount(v) }}>
-            <SelectTrigger className="w-64">
+            <SelectTrigger className="w-full sm:w-64">
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent>
@@ -138,8 +138,8 @@ export function SkinsPage() {
       )}
 
       {profile && (
-        <div className="flex gap-8">
-          <div className="flex-shrink-0">
+        <div className="flex flex-col gap-6 md:flex-row md:gap-8">
+          <div className="flex-shrink-0 self-center md:self-start">
             <SkinViewer
               skinUrl={activeSkin?.url ?? `https://mc-heads.net/skin/${profile.id}`}
               capeUrl={selectedCapeUrl}
@@ -204,7 +204,7 @@ export function SkinsPage() {
               <Card size="sm">
                 <CardContent className="space-y-4">
                   <h3 className="text-sm font-semibold">Capes</h3>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <button
                       className="flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors hover:bg-accent"
                       onClick={() => setSelectedCapeId(null)}

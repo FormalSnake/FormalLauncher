@@ -46,7 +46,7 @@ export function HomePage() {
     <div>
       <section className="mb-8">
         <h2 className="mb-4 text-lg font-semibold">Recent Instances</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {recentInstances.map((instance) => (
             <InstanceCard key={instance.id} instance={instance} />
           ))}
@@ -55,7 +55,7 @@ export function HomePage() {
 
       <section>
         <h2 className="mb-4 text-lg font-semibold">Quick Actions</h2>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button
             size="lg"
             className="gap-2"
