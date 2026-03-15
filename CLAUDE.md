@@ -1,6 +1,6 @@
 # FormalLauncher
 
-A Minecraft launcher that integrates with Modrinth and syncs instance metadata (settings, mod lists) between sessions via a server. Syncs metadata only — not mod files themselves.
+A Minecraft launcher with full Modrinth support (mods, resource packs, modpacks), multi-instance management, skin editing, and Microsoft account login. Syncs instance metadata and modpack URLs between sessions via a server. Includes a custom Minecraft library package for launching and authentication.
 
 ## Architecture
 
@@ -8,6 +8,8 @@ A Minecraft launcher that integrates with Modrinth and syncs instance metadata (
 Desktop (Electron) <--tRPC--> Server (Hono) <--Drizzle--> PostgreSQL
        |
        +--> Modrinth API (called from Electron main process)
+       +--> Microsoft Auth (via packages/minecraft)
+       +--> packages/minecraft (launch, auth utilities)
 ```
 
 ## Packages
@@ -15,6 +17,7 @@ Desktop (Electron) <--tRPC--> Server (Hono) <--Drizzle--> PostgreSQL
 - `apps/desktop` — Electron + Vite + React + ShadCN + Tailwind + Zustand. The launcher UI.
 - `apps/server` — Bun + Hono + tRPC + Better Auth + Drizzle ORM. Handles sync, auth, instance storage.
 - `packages/shared` — Zod schemas and TypeScript types shared between desktop and server. Exports raw `.ts` files (no build step).
+- `packages/minecraft` — Custom library for Minecraft launching, Microsoft authentication, and related utilities.
 
 ## Tech Stack
 
@@ -28,7 +31,9 @@ Desktop (Electron) <--tRPC--> Server (Hono) <--Drizzle--> PostgreSQL
 | Client data fetching | @trpc/react-query + TanStack React Query |
 | Server runtime | Bun |
 | Server framework | Hono |
-| Auth | Better Auth (email/password, Drizzle adapter) |
+| App auth | Better Auth (email/password, Drizzle adapter) |
+| Minecraft auth | Microsoft account login (via `packages/minecraft`) |
+| Minecraft library | `packages/minecraft` (launching, auth, utilities) |
 | Database | PostgreSQL + Drizzle ORM |
 | Schemas | Zod (in `packages/shared`) |
 
@@ -57,9 +62,8 @@ bun run db:studio        # Open Drizzle Studio
 
 ## Auth
 
-- Better Auth with Drizzle adapter (`apps/server/src/lib/auth.ts`)
-- Email/password only — no OAuth configured yet
-- Auth routes mounted at `/api/auth/**`
+- **App account (sync):** Better Auth with Drizzle adapter (`apps/server/src/lib/auth.ts`). Email/password. Routes at `/api/auth/**`.
+- **Minecraft account:** Microsoft account login handled by `packages/minecraft`. Used for launching Minecraft and skin access.
 
 ## tRPC
 
@@ -71,14 +75,25 @@ bun run db:studio        # Open Drizzle Studio
 
 ## Sync Model
 
-- Metadata only: instance settings, mod lists, JVM args
-- No file sync — mod files are downloaded from Modrinth directly by the desktop client
+- Metadata + modpack URLs: instance settings, mod lists, JVM args, modpack source URLs
+- No file sync — mod and resource pack files are downloaded from Modrinth directly by the desktop client
 - Sync payload schema: `SyncPayloadSchema` in `packages/shared`
 
 ## Modrinth
 
 - API calls happen from the Electron main process (not renderer)
 - No server proxy — desktop talks to Modrinth directly
+- Features: mod search/install, resource pack search/install, modpack support, multi-instance management
+
+## Features
+
+- Multi-instance management (create, configure, launch separate Minecraft instances)
+- Modpack instances from Modrinth modpack URLs
+- Mod search and installation from Modrinth
+- Resource pack search and installation from Modrinth
+- Skin editing
+- Microsoft account login for Minecraft
+- Custom Minecraft launch library (`packages/minecraft`)
 
 ## Environment Variables
 
