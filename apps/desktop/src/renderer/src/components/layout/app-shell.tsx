@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Outlet, NavLink } from 'react-router'
+import { Outlet, NavLink, Navigate } from 'react-router'
+import { authClient } from '@/lib/auth-client'
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +43,20 @@ export interface AppShellContext {
 }
 
 export function AppShell() {
+  const { data: session, isPending } = authClient.useSession()
   const [titleOverride, setTitleOverride] = useState<string | null>(null)
+
+  if (isPending) {
+    return (
+      <div className="flex h-svh items-center justify-center">
+        <div className="text-sm text-muted-foreground">Loading...</div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return <Navigate to="/login" replace />
+  }
 
   return (
     <SidebarProvider className="h-svh">

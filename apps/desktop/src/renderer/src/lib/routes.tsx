@@ -1,5 +1,6 @@
 import { createHashRouter } from 'react-router'
 import { AppShell } from '@/components/layout/app-shell'
+import { LoginPage } from '@/pages/login'
 import { HomePage } from '@/pages/home'
 import { InstancesPage } from '@/pages/instances'
 import { InstanceDetailPage } from '@/pages/instance-detail'
@@ -10,6 +11,7 @@ import { SkinsPage } from '@/pages/skins'
 import { SettingsPage } from '@/pages/settings'
 
 export const router = createHashRouter([
+  { path: 'login', element: <LoginPage /> },
   {
     element: <AppShell />,
     children: [

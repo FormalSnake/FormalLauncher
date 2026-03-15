@@ -12,7 +12,8 @@ import {
 } from '@/components/ui/dialog'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useMinecraftAuth } from '@/hooks/use-minecraft-auth'
-import { mockUser } from '@/data/mock'
+import { authClient } from '@/lib/auth-client'
+import { useNavigate } from 'react-router'
 import {
   PlusIcon,
   UserIcon,
@@ -20,6 +21,7 @@ import {
   ExternalLinkIcon,
   LoaderIcon,
   TrashIcon,
+  LogOutIcon,
 } from 'lucide-react'
 
 function McAvatar({ id, name }: { id: string; name: string }) {
@@ -38,6 +40,8 @@ export function AccountsPage() {
   const { accounts, activeAccountId, setActiveAccount, removeAccount } =
     useMinecraftAccountsStore()
   const { login, isLoggingIn, deviceCode, error } = useMinecraftAuth()
+  const { data: session } = authClient.useSession()
+  const navigate = useNavigate()
 
   return (
     <div>
@@ -151,10 +155,24 @@ export function AccountsPage() {
                 <UserIcon className="size-4" />
               </AvatarFallback>
             </Avatar>
-            <div>
-              <p className="text-sm font-medium">{mockUser.name}</p>
-              <p className="text-xs text-muted-foreground">{mockUser.email}</p>
+            <div className="flex-1">
+              <p className="text-sm font-medium">{session?.user.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {session?.user.email}
+              </p>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={async () => {
+                await authClient.signOut()
+                navigate('/login')
+              }}
+            >
+              <LogOutIcon className="size-4" />
+              Sign Out
+            </Button>
           </CardContent>
         </Card>
       </section>
