@@ -46,7 +46,7 @@ export function SkinsPage() {
   const { accounts, activeAccountId, setActiveAccount } = useMinecraftAccountsStore()
   const account = accounts.find((a) => a.id === activeAccountId) ?? null
 
-  const { data: profile, isLoading, error } = useSkinProfile()
+  const { data: profile, isPending, isFetching, error } = useSkinProfile()
   const uploadSkin = useUploadSkin()
   const setCape = useSetActiveCape()
 
@@ -86,7 +86,7 @@ export function SkinsPage() {
         </div>
       )}
 
-      {isLoading && (
+      {isPending && isFetching && (
         <div className="flex items-center gap-2 text-muted-foreground">
           <LoaderIcon className="size-4 animate-spin" />
           Loading skin profile...
@@ -140,11 +140,11 @@ export function SkinsPage() {
                 <Button
                   variant="outline"
                   className="gap-2"
-                  disabled={uploadSkin.isPending || !account?.accessToken}
+                  disabled={uploadSkin.isPending || !account}
                   onClick={() => {
-                    if (!account?.accessToken) return
+                    if (!account) return
                     uploadSkin.mutate({
-                      accessToken: account.accessToken,
+                      accountId: account.id,
                       variant,
                     })
                   }}
@@ -170,8 +170,8 @@ export function SkinsPage() {
                     <button
                       className="flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors hover:bg-accent"
                       onClick={() => {
-                        if (!account?.accessToken) return
-                        setCape.mutate({ accessToken: account.accessToken, capeId: null })
+                        if (!account) return
+                        setCape.mutate({ accountId: account.id, capeId: null })
                       }}
                     >
                       <div className="flex h-16 w-12 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
@@ -186,8 +186,8 @@ export function SkinsPage() {
                         cape={cape}
                         isActive={cape.state === 'ACTIVE'}
                         onSelect={() => {
-                          if (!account?.accessToken) return
-                          setCape.mutate({ accessToken: account.accessToken, capeId: cape.id })
+                          if (!account) return
+                          setCape.mutate({ accountId: account.id, capeId: cape.id })
                         }}
                       />
                     ))}
