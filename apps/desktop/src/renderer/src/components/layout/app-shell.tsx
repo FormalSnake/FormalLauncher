@@ -83,7 +83,7 @@ export function AppShell() {
       </Sidebar>
       <SidebarInset className="flex flex-col overflow-hidden">
         <TitleBar />
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 overflow-hidden">
           <div className="p-6">
             <Outlet />
           </div>
