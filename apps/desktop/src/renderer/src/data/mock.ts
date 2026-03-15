@@ -1,12 +1,12 @@
 import type { Instance, ModEntry, ModLoader, User } from '@formallauncher/shared'
 
 export const mockMods: ModEntry[] = [
-  { projectId: 'AANobbMI', versionId: 'v0.5.11', name: 'Sodium', enabled: true },
-  { projectId: 'gvQqBUqZ', versionId: 'v0.12.1', name: 'Lithium', enabled: true },
-  { projectId: 'YL57xq9U', versionId: 'v1.7.3', name: 'Iris Shaders', enabled: true },
-  { projectId: 'H8CaAYZC', versionId: 'v0.15.0', name: 'Fabric API', enabled: true },
-  { projectId: 'mOgUt4GM', versionId: 'v3.5.1', name: 'Mod Menu', enabled: true },
-  { projectId: 'P7dR8mSH', versionId: 'v6.2.0', name: 'Xaeros Minimap', enabled: false },
+  { projectId: 'AANobbMI', versionId: 'v0.5.11', name: 'Sodium', fileName: 'sodium-0.5.11.jar', enabled: true },
+  { projectId: 'gvQqBUqZ', versionId: 'v0.12.1', name: 'Lithium', fileName: 'lithium-0.12.1.jar', enabled: true },
+  { projectId: 'YL57xq9U', versionId: 'v1.7.3', name: 'Iris Shaders', fileName: 'iris-1.7.3.jar', enabled: true },
+  { projectId: 'H8CaAYZC', versionId: 'v0.15.0', name: 'Fabric API', fileName: 'fabric-api-0.15.0.jar', enabled: true },
+  { projectId: 'mOgUt4GM', versionId: 'v3.5.1', name: 'Mod Menu', fileName: 'modmenu-3.5.1.jar', enabled: true },
+  { projectId: 'P7dR8mSH', versionId: 'v6.2.0', name: 'Xaeros Minimap', fileName: 'xaeros-minimap-6.2.0.jar', enabled: false },
 ]
 
 export const mockInstances: Instance[] = [
@@ -16,6 +16,7 @@ export const mockInstances: Instance[] = [
     minecraftVersion: '1.21.4',
     modLoader: 'fabric',
     mods: mockMods.slice(0, 4),
+    resourcePacks: [],
     ramMb: 4096,
     jvmArgs: '-XX:+UseG1GC',
   },
@@ -25,6 +26,7 @@ export const mockInstances: Instance[] = [
     minecraftVersion: '1.21.4',
     modLoader: 'fabric',
     mods: mockMods.slice(0, 2),
+    resourcePacks: [],
     ramMb: 8192,
   },
   {
@@ -33,6 +35,7 @@ export const mockInstances: Instance[] = [
     minecraftVersion: '1.20.1',
     modLoader: 'forge',
     mods: mockMods,
+    resourcePacks: [],
     ramMb: 6144,
     jvmArgs: '-XX:+UseG1GC -XX:MaxGCPauseMillis=50',
   },
@@ -42,6 +45,7 @@ export const mockInstances: Instance[] = [
     minecraftVersion: '1.21.4',
     modLoader: 'quilt',
     mods: mockMods.slice(0, 1),
+    resourcePacks: [],
     ramMb: 4096,
   },
   {
@@ -50,6 +54,7 @@ export const mockInstances: Instance[] = [
     minecraftVersion: '1.20.4',
     modLoader: 'neoforge',
     mods: mockMods.slice(0, 5),
+    resourcePacks: [],
     ramMb: 8192,
   },
 ]

@@ -8,7 +8,10 @@ import {
   loginWithMicrosoft,
   refreshAuth,
   getDefaultGameDir,
+  ensureInstanceDirs,
+  downloadFile,
 } from '@formallauncher/minecraft'
+import { readdir, unlink, rename } from 'node:fs/promises'
 import type { DownloadProgress, GameProcess, LaunchOptions } from '@formallauncher/minecraft'
 
 let mainWindow: BrowserWindow | null = null
@@ -90,6 +93,71 @@ function setupMinecraftIPC(): void {
   ipcMain.handle('minecraft:get-default-game-dir', () => {
     return getDefaultGameDir()
   })
+
+  ipcMain.handle(
+    'minecraft:ensure-instance-dirs',
+    async (_event, gameDir: string, instanceId: string) => {
+      await ensureInstanceDirs(gameDir, instanceId)
+    },
+  )
+
+  ipcMain.handle(
+    'minecraft:download-file',
+    async (_event, url: string, destPath: string, sha1?: string) => {
+      await downloadFile(url, destPath, sha1 ? { sha1 } : undefined)
+    },
+  )
+
+  ipcMain.handle('minecraft:delete-file', async (_event, path: string) => {
+    await unlink(path)
+  })
+
+  ipcMain.handle(
+    'minecraft:rename-file',
+    async (_event, oldPath: string, newPath: string) => {
+      await rename(oldPath, newPath)
+    },
+  )
+
+  ipcMain.handle('minecraft:list-dir', async (_event, dirPath: string) => {
+    try {
+      return await readdir(dirPath)
+    } catch {
+      return []
+    }
+  })
+
+  ipcMain.handle(
+    'minecraft:get-fabric-versions',
+    async (_event, mcVersion: string) => {
+      const { fetchFabricLoaderVersions } = await import('@formallauncher/minecraft/fabric')
+      return fetchFabricLoaderVersions(mcVersion)
+    },
+  )
+
+  ipcMain.handle(
+    'minecraft:install-fabric',
+    async (_event, gameDir: string, mcVersion: string, loaderVersion?: string) => {
+      const { installFabric } = await import('@formallauncher/minecraft/fabric')
+      return installFabric(gameDir, mcVersion, loaderVersion)
+    },
+  )
+
+  ipcMain.handle(
+    'minecraft:install-modpack',
+    async (_event, gameDir: string, instanceId: string, modpackFileUrl: string) => {
+      const { installModpack } = await import('@formallauncher/minecraft/fabric')
+      return installModpack(gameDir, instanceId, modpackFileUrl)
+    },
+  )
+
+  ipcMain.handle(
+    'minecraft:apply-modpack-overrides',
+    async (_event, extractedPath: string, instanceDir: string) => {
+      const { applyModpackOverrides } = await import('@formallauncher/minecraft/fabric')
+      return applyModpackOverrides(extractedPath, instanceDir)
+    },
+  )
 }
 
 app.whenReady().then(() => {

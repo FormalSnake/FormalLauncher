@@ -81,6 +81,9 @@ export function useLaunch() {
 
       try {
         await window.minecraft.downloadGame(gameDir, instance.minecraftVersion)
+        if (instance.effectiveVersionId && instance.effectiveVersionId !== instance.minecraftVersion) {
+          await window.minecraft.downloadGame(gameDir, instance.effectiveVersionId)
+        }
         setDownloadProgress(null)
 
         const unsubStdout = window.minecraft.onStdout((data) =>
@@ -97,9 +100,10 @@ export function useLaunch() {
         cleanupFns.current.push(unsubStdout, unsubStderr, unsubExit)
 
         await window.minecraft.launch({
-          versionId: instance.minecraftVersion,
+          versionId: instance.effectiveVersionId ?? instance.minecraftVersion,
           gameDir,
           auth,
+          instanceId: instance.id,
           javaPath: instance.javaPath || settings.javaPath || undefined,
           jvmArgs: (instance.jvmArgs || settings.defaultJvmArgs || undefined)
             ?.split(' ')

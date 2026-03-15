@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Instance } from '@formallauncher/shared'
+import type { Instance, ModEntry, ResourcePackEntry } from '@formallauncher/shared'
 
 interface InstancesState {
   instances: Instance[]
@@ -11,6 +11,11 @@ interface InstancesState {
   updateInstance: (id: string, updates: Partial<Instance>) => void
   setSelectedInstanceId: (id: string | null) => void
   setSearchQuery: (query: string) => void
+  addMod: (instanceId: string, mod: ModEntry) => void
+  removeMod: (instanceId: string, projectId: string) => void
+  toggleMod: (instanceId: string, projectId: string) => void
+  addResourcePack: (instanceId: string, rp: ResourcePackEntry) => void
+  removeResourcePack: (instanceId: string, projectId: string) => void
 }
 
 export const useInstancesStore = create<InstancesState>()(
@@ -39,6 +44,65 @@ export const useInstancesStore = create<InstancesState>()(
 
       setSelectedInstanceId: (id) => set({ selectedInstanceId: id }),
       setSearchQuery: (query) => set({ searchQuery: query }),
+
+      addMod: (instanceId, mod) =>
+        set((state) => ({
+          instances: state.instances.map((i) =>
+            i.id === instanceId
+              ? { ...i, mods: [...i.mods.filter((m) => m.projectId !== mod.projectId), mod] }
+              : i,
+          ),
+        })),
+
+      removeMod: (instanceId, projectId) =>
+        set((state) => ({
+          instances: state.instances.map((i) =>
+            i.id === instanceId
+              ? { ...i, mods: i.mods.filter((m) => m.projectId !== projectId) }
+              : i,
+          ),
+        })),
+
+      toggleMod: (instanceId, projectId) =>
+        set((state) => ({
+          instances: state.instances.map((i) =>
+            i.id === instanceId
+              ? {
+                  ...i,
+                  mods: i.mods.map((m) =>
+                    m.projectId === projectId ? { ...m, enabled: !m.enabled } : m,
+                  ),
+                }
+              : i,
+          ),
+        })),
+
+      addResourcePack: (instanceId, rp) =>
+        set((state) => ({
+          instances: state.instances.map((i) =>
+            i.id === instanceId
+              ? {
+                  ...i,
+                  resourcePacks: [
+                    ...i.resourcePacks.filter((r) => r.projectId !== rp.projectId),
+                    rp,
+                  ],
+                }
+              : i,
+          ),
+        })),
+
+      removeResourcePack: (instanceId, projectId) =>
+        set((state) => ({
+          instances: state.instances.map((i) =>
+            i.id === instanceId
+              ? {
+                  ...i,
+                  resourcePacks: i.resourcePacks.filter((r) => r.projectId !== projectId),
+                }
+              : i,
+          ),
+        })),
     }),
     {
       name: 'formallauncher-instances',

@@ -9,6 +9,7 @@ const minecraftAPI = {
     versionId: string
     gameDir: string
     auth: { id: string; name: string; accessToken: string }
+    instanceId?: string
     javaPath?: string
     jvmArgs?: string[]
     ramMb?: number
@@ -16,6 +17,30 @@ const minecraftAPI = {
   authLogin: (cacheDir: string) => ipcRenderer.invoke('minecraft:auth-login', cacheDir),
   authRefresh: (cacheDir: string) => ipcRenderer.invoke('minecraft:auth-refresh', cacheDir),
   getDefaultGameDir: () => ipcRenderer.invoke('minecraft:get-default-game-dir'),
+
+  // Instance management
+  ensureInstanceDirs: (gameDir: string, instanceId: string) =>
+    ipcRenderer.invoke('minecraft:ensure-instance-dirs', gameDir, instanceId),
+
+  // File operations
+  downloadFile: (url: string, destPath: string, sha1?: string) =>
+    ipcRenderer.invoke('minecraft:download-file', url, destPath, sha1),
+  deleteFile: (path: string) => ipcRenderer.invoke('minecraft:delete-file', path),
+  renameFile: (oldPath: string, newPath: string) =>
+    ipcRenderer.invoke('minecraft:rename-file', oldPath, newPath),
+  listDir: (dirPath: string) => ipcRenderer.invoke('minecraft:list-dir', dirPath) as Promise<string[]>,
+
+  // Fabric
+  getFabricVersions: (mcVersion: string) =>
+    ipcRenderer.invoke('minecraft:get-fabric-versions', mcVersion),
+  installFabric: (gameDir: string, mcVersion: string, loaderVersion?: string) =>
+    ipcRenderer.invoke('minecraft:install-fabric', gameDir, mcVersion, loaderVersion) as Promise<string>,
+
+  // Modpack
+  installModpack: (gameDir: string, instanceId: string, modpackFileUrl: string) =>
+    ipcRenderer.invoke('minecraft:install-modpack', gameDir, instanceId, modpackFileUrl),
+  applyModpackOverrides: (extractedPath: string, instanceDir: string) =>
+    ipcRenderer.invoke('minecraft:apply-modpack-overrides', extractedPath, instanceDir),
 
   // Event listeners
   onDownloadProgress: (callback: (progress: unknown) => void) => {

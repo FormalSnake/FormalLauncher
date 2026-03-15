@@ -83,7 +83,7 @@ export function BrowsePage() {
             </p>
           )}
           {data?.hits.map((project) => (
-            <ModCard key={project.project_id} variant="browse" project={project} />
+            <ModCard key={project.project_id} variant="browse" project={project} projectType={tab} />
           ))}
           {data && data.hits.length === 0 && (
             <p className="py-12 text-center text-sm text-muted-foreground">

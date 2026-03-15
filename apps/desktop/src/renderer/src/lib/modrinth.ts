@@ -91,3 +91,65 @@ export async function getProject(idOrSlug: string): Promise<ModrinthProject> {
   if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
   return res.json()
 }
+
+// ── Version types and endpoints ──
+
+export interface ModrinthVersionFile {
+  url: string
+  filename: string
+  primary: boolean
+  hashes: { sha1: string; sha512: string }
+  size: number
+}
+
+export interface ModrinthVersionDependency {
+  version_id: string | null
+  project_id: string | null
+  file_name: string | null
+  dependency_type: 'required' | 'optional' | 'incompatible' | 'embedded'
+}
+
+export interface ModrinthVersion {
+  id: string
+  project_id: string
+  name: string
+  version_number: string
+  game_versions: string[]
+  loaders: string[]
+  files: ModrinthVersionFile[]
+  dependencies: ModrinthVersionDependency[]
+  date_published: string
+  featured: boolean
+}
+
+export async function getProjectVersions(
+  projectId: string,
+  params?: { game_versions?: string[]; loaders?: string[] },
+): Promise<ModrinthVersion[]> {
+  const url = new URL(`${BASE_URL}/project/${encodeURIComponent(projectId)}/version`)
+  if (params?.game_versions) {
+    url.searchParams.set('game_versions', JSON.stringify(params.game_versions))
+  }
+  if (params?.loaders) {
+    url.searchParams.set('loaders', JSON.stringify(params.loaders))
+  }
+  const res = await fetch(url.toString(), { headers: HEADERS })
+  if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
+  return res.json()
+}
+
+export async function getVersion(versionId: string): Promise<ModrinthVersion> {
+  const res = await fetch(`${BASE_URL}/version/${encodeURIComponent(versionId)}`, {
+    headers: HEADERS,
+  })
+  if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
+  return res.json()
+}
+
+export async function getVersions(versionIds: string[]): Promise<ModrinthVersion[]> {
+  const url = new URL(`${BASE_URL}/versions`)
+  url.searchParams.set('ids', JSON.stringify(versionIds))
+  const res = await fetch(url.toString(), { headers: HEADERS })
+  if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
+  return res.json()
+}

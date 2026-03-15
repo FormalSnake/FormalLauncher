@@ -125,6 +125,7 @@ export interface LaunchOptions {
   versionId: string
   gameDir: string
   auth: MinecraftAccount
+  instanceId?: string
   javaPath?: string
   jvmArgs?: string[]
   ramMb?: number

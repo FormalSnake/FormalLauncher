@@ -1,11 +1,12 @@
 import { join } from 'node:path'
-import { getLibrariesDir, getVersionDir, getAssetsDir, getNativesDir } from '../utils/paths'
+import { getLibrariesDir, getVersionDir, getAssetsDir, getNativesDir, getInstanceDir } from '../utils/paths'
 import { getClasspathSeparator, evaluateRules } from '../utils/platform'
 import type { VersionJson, MinecraftAccount, ResolvedLibrary, ArgumentEntry } from '../types'
 
 interface ArgContext {
   versionJson: VersionJson
   gameDir: string
+  instanceId?: string
   auth: MinecraftAccount
   nativesDir: string
   classpath: string
@@ -99,7 +100,7 @@ function substituteVar(arg: string, ctx: ArgContext): string {
   const vars: Record<string, string> = {
     '${auth_player_name}': ctx.auth.name,
     '${version_name}': ctx.versionJson.id,
-    '${game_directory}': ctx.gameDir,
+    '${game_directory}': ctx.instanceId ? getInstanceDir(ctx.gameDir, ctx.instanceId) : ctx.gameDir,
     '${assets_root}': getAssetsDir(ctx.gameDir),
     '${assets_index_name}': ctx.versionJson.assets,
     '${auth_uuid}': ctx.auth.id,

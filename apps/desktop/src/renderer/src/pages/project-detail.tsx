@@ -1,10 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams, useOutletContext } from 'react-router'
+import { useParams, useOutletContext, useNavigate } from 'react-router'
 import type { AppShellContext } from '@/components/layout/app-shell'
-import { useModrinthProject } from '@/hooks/use-modrinth'
+import { useModrinthProject, useModrinthVersions } from '@/hooks/use-modrinth'
+import { useModpackInstall } from '@/hooks/use-modpack-install'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { InstallDialog } from '@/components/shared/install-dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -12,8 +23,10 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import {
   ChevronLeftIcon,
@@ -24,6 +37,7 @@ import {
   PackageIcon,
   CalendarIcon,
   ScaleIcon,
+  LoaderIcon,
 } from 'lucide-react'
 
 function formatDownloads(n: number): string {
@@ -42,8 +56,10 @@ function formatDate(dateStr: string): string {
 
 export function ProjectDetailPage() {
   const { slug } = useParams()
+  const navigate = useNavigate()
   const { setTitleOverride } = useOutletContext<AppShellContext>()
   const { data: project, isLoading, error } = useModrinthProject(slug ?? '')
+  const { installModpack, installing: modpackInstalling, progress: modpackProgress, error: modpackError } = useModpackInstall()
 
   useEffect(() => {
     if (project) setTitleOverride(project.title)
@@ -55,6 +71,16 @@ export function ProjectDetailPage() {
     .sort((a, b) => a.ordering - b.ordering) ?? []
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const [installOpen, setInstallOpen] = useState(false)
+  const [modpackDialogOpen, setModpackDialogOpen] = useState(false)
+  const [modpackName, setModpackName] = useState('')
+  const [modpackVersionId, setModpackVersionId] = useState('')
+
+  const isModpack = project?.project_type === 'modpack'
+
+  const { data: modpackVersions } = useModrinthVersions(
+    isModpack ? project?.id ?? '' : '',
+  )
   const selectedImage = selectedIndex !== null ? sortedGallery[selectedIndex] : null
 
   const goNext = useCallback(() => {
@@ -223,6 +249,15 @@ export function ProjectDetailPage() {
 
       <div className="mt-6 grid grid-cols-[1fr_280px] gap-6">
         <div className="prose prose-sm prose-invert max-w-none">
+          {project.project_type !== 'modpack' && (
+            <InstallDialog
+              projectId={project.id}
+              projectName={project.title}
+              projectType={project.project_type === 'resourcepack' ? 'resourcepack' : 'mod'}
+              open={installOpen}
+              onOpenChange={setInstallOpen}
+            />
+          )}
           <Markdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[
@@ -244,6 +279,23 @@ export function ProjectDetailPage() {
         </div>
 
         <div className="space-y-4">
+          {project.project_type === 'modpack' ? (
+            <Button
+              className="w-full"
+              onClick={() => {
+                setModpackName(project.title)
+                setModpackDialogOpen(true)
+              }}
+            >
+              <DownloadIcon className="mr-2 size-4" />
+              Install Modpack
+            </Button>
+          ) : (
+            <Button className="w-full" onClick={() => setInstallOpen(true)}>
+              <DownloadIcon className="mr-2 size-4" />
+              Install
+            </Button>
+          )}
           <Card>
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-center gap-2">
@@ -290,6 +342,94 @@ export function ProjectDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Modpack install dialog */}
+      <Dialog open={modpackDialogOpen} onOpenChange={setModpackDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Install Modpack</DialogTitle>
+            <DialogDescription>
+              This will create a new instance with all mods from the modpack.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Instance Name</label>
+              <Input
+                value={modpackName}
+                onChange={(e) => setModpackName(e.target.value)}
+                placeholder="Modpack instance name"
+              />
+            </div>
+            {modpackVersions && modpackVersions.length > 0 && (
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Version</label>
+                <Select value={modpackVersionId} onValueChange={(v) => v && setModpackVersionId(v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Latest" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {modpackVersions.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.name} ({v.version_number})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {modpackProgress && (
+              <div>
+                <div className="mb-1 flex justify-between text-xs text-muted-foreground">
+                  <span>Downloading mods...</span>
+                  <span>{modpackProgress.current}/{modpackProgress.total}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full bg-primary transition-all"
+                    style={{
+                      width: `${modpackProgress.total > 0 ? (modpackProgress.current / modpackProgress.total) * 100 : 0}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {modpackError && (
+              <p className="text-sm text-destructive">{modpackError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              disabled={!modpackName.trim() || modpackInstalling}
+              onClick={async () => {
+                const selectedVer = modpackVersionId
+                  ? modpackVersions?.find((v) => v.id === modpackVersionId)
+                  : modpackVersions?.[0]
+                if (!selectedVer) return
+                const file = selectedVer.files.find((f) => f.primary) ?? selectedVer.files[0]
+                if (!file) return
+                const instanceId = await installModpack(
+                  file.url,
+                  modpackName.trim(),
+                )
+                if (instanceId) {
+                  setModpackDialogOpen(false)
+                  navigate(`/instances/${instanceId}`)
+                }
+              }}
+            >
+              {modpackInstalling ? (
+                <>
+                  <LoaderIcon className="mr-2 size-4 animate-spin" />
+                  Installing...
+                </>
+              ) : (
+                'Install'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

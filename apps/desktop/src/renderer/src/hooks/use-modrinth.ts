@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { searchProjects, getProject } from '@/lib/modrinth'
+import { searchProjects, getProject, getProjectVersions, getVersion } from '@/lib/modrinth'
 
 export function useModrinthSearch(params: {
   query: string
@@ -24,5 +24,28 @@ export function useModrinthProject(idOrSlug: string) {
     queryKey: ['modrinth', 'project', idOrSlug],
     queryFn: () => getProject(idOrSlug),
     enabled: !!idOrSlug,
+  })
+}
+
+export function useModrinthVersions(
+  projectId: string,
+  params?: { gameVersions?: string[]; loaders?: string[] },
+) {
+  return useQuery({
+    queryKey: ['modrinth', 'versions', projectId, params],
+    queryFn: () =>
+      getProjectVersions(projectId, {
+        game_versions: params?.gameVersions,
+        loaders: params?.loaders,
+      }),
+    enabled: !!projectId,
+  })
+}
+
+export function useModrinthVersion(versionId: string) {
+  return useQuery({
+    queryKey: ['modrinth', 'version', versionId],
+    queryFn: () => getVersion(versionId),
+    enabled: !!versionId,
   })
 }

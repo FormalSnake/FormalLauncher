@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { InstanceCard } from '@/components/shared/instance-card'
 import { SearchBar } from '@/components/shared/search-bar'
 import { Button } from '@/components/ui/button'
@@ -22,8 +22,11 @@ import {
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { useInstancesStore } from '@/store/instances.store'
+import { useSettingsStore } from '@/store/settings.store'
 import { useVersions } from '@/hooks/use-versions'
 import { PlusIcon, LoaderIcon } from 'lucide-react'
+
+type ModLoaderChoice = 'vanilla' | 'fabric'
 
 export function InstancesPage() {
   const { instances, addInstance } = useInstancesStore()
@@ -32,26 +35,82 @@ export function InstancesPage() {
   const [name, setName] = useState('')
   const [version, setVersion] = useState('')
   const [ramMb, setRamMb] = useState(4096)
+  const [modLoader, setModLoader] = useState<ModLoaderChoice>('vanilla')
+  const [fabricVersions, setFabricVersions] = useState<{ version: string; stable: boolean }[]>([])
+  const [fabricVersion, setFabricVersion] = useState('')
+  const [fabricLoading, setFabricLoading] = useState(false)
+  const [creating, setCreating] = useState(false)
   const { versions, latest, isLoading: versionsLoading } = useVersions('release')
 
   const filtered = instances.filter((i) =>
     i.name.toLowerCase().includes(search.toLowerCase()),
   )
 
-  const handleCreate = () => {
+  // Fetch Fabric loader versions when mod loader or MC version changes
+  useEffect(() => {
+    if (modLoader !== 'fabric' || !version) {
+      setFabricVersions([])
+      setFabricVersion('')
+      return
+    }
+    setFabricLoading(true)
+    window.minecraft
+      .getFabricVersions(version)
+      .then((loaders) => {
+        setFabricVersions(loaders)
+        const stable = loaders.find((l) => l.stable)
+        setFabricVersion(stable?.version ?? loaders[0]?.version ?? '')
+      })
+      .catch(() => setFabricVersions([]))
+      .finally(() => setFabricLoading(false))
+  }, [modLoader, version])
+
+  const handleCreate = async () => {
     if (!name.trim() || !version) return
-    addInstance({
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      minecraftVersion: version,
-      modLoader: 'vanilla',
-      mods: [],
-      ramMb,
-    })
-    setOpen(false)
-    setName('')
-    setVersion('')
-    setRamMb(4096)
+    setCreating(true)
+
+    try {
+      const gameDir = useSettingsStore.getState().gameDirectory
+      const instanceId = crypto.randomUUID()
+
+      // Create instance directories
+      await window.minecraft.ensureInstanceDirs(gameDir, instanceId)
+
+      let effectiveVersionId: string | undefined
+      let modLoaderVersion: string | undefined
+
+      if (modLoader === 'fabric') {
+        effectiveVersionId = await window.minecraft.installFabric(
+          gameDir,
+          version,
+          fabricVersion || undefined,
+        )
+        modLoaderVersion = fabricVersion
+      }
+
+      addInstance({
+        id: instanceId,
+        name: name.trim(),
+        minecraftVersion: version,
+        modLoader,
+        modLoaderVersion,
+        effectiveVersionId,
+        mods: [],
+        resourcePacks: [],
+        ramMb,
+      })
+
+      setOpen(false)
+      setName('')
+      setVersion('')
+      setRamMb(4096)
+      setModLoader('vanilla')
+      setFabricVersion('')
+    } catch (err) {
+      console.error('Failed to create instance:', err)
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
@@ -101,6 +160,48 @@ export function InstancesPage() {
                 </Select>
               </div>
               <div className="grid gap-2">
+                <Label>Mod Loader</Label>
+                <Select
+                  value={modLoader}
+                  onValueChange={(v) => setModLoader(v as ModLoaderChoice)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="vanilla">Vanilla</SelectItem>
+                    <SelectItem value="fabric">Fabric</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {modLoader === 'fabric' && version && (
+                <div className="grid gap-2">
+                  <Label>Fabric Loader Version</Label>
+                  <Select
+                    value={fabricVersion}
+                    onValueChange={(v) => v && setFabricVersion(v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={fabricLoading ? 'Loading...' : 'Select version'}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fabricLoading && (
+                        <div className="flex items-center justify-center py-2">
+                          <LoaderIcon className="size-4 animate-spin" />
+                        </div>
+                      )}
+                      {fabricVersions.map((v) => (
+                        <SelectItem key={v.version} value={v.version}>
+                          {v.version} {v.stable ? '(stable)' : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="grid gap-2">
                 <Label>RAM (MB)</Label>
                 <Slider
                   value={[ramMb]}
@@ -116,8 +217,18 @@ export function InstancesPage() {
               <DialogClose render={<Button variant="outline" />}>
                 Cancel
               </DialogClose>
-              <Button onClick={handleCreate} disabled={!name.trim() || !version}>
-                Create
+              <Button
+                onClick={handleCreate}
+                disabled={!name.trim() || !version || creating}
+              >
+                {creating ? (
+                  <>
+                    <LoaderIcon className="mr-2 size-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create'
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

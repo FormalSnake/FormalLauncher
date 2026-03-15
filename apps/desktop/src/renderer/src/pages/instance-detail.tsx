@@ -15,17 +15,23 @@ import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoaderBadge } from '@/components/shared/loader-badge'
 import { GameTerminal } from '@/components/shared/game-terminal'
+import { ModCard } from '@/components/shared/mod-card'
+import { AddContentDialog } from '@/components/shared/add-content-dialog'
 import { useInstancesStore } from '@/store/instances.store'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useGameStore } from '@/store/game.store'
 import { useSettingsStore } from '@/store/settings.store'
 import { useVersions } from '@/hooks/use-versions'
 import { useLaunch } from '@/hooks/use-launch'
+import { useContentInstall } from '@/hooks/use-mod-install'
 import {
   PlayIcon,
   PackageIcon,
   LoaderIcon,
   ShieldCheckIcon,
+  PlusIcon,
+  ImageIcon,
+  Trash2Icon,
 } from 'lucide-react'
 
 export function InstanceDetailPage() {
@@ -38,6 +44,7 @@ export function InstanceDetailPage() {
     useGameStore()
   const { launch } = useLaunch()
   const { versions } = useVersions('release')
+  const { removeMod, toggleMod, removeResourcePack } = useContentInstall()
 
   const [activeTab, setActiveTab] = useState('overview')
   const [settingsRam, setSettingsRam] = useState(instance?.ramMb ?? 4096)
@@ -49,6 +56,8 @@ export function InstanceDetailPage() {
     instance?.minecraftVersion ?? '',
   )
   const [verifying, setVerifying] = useState(false)
+  const [addModsOpen, setAddModsOpen] = useState(false)
+  const [addRpOpen, setAddRpOpen] = useState(false)
 
   if (!instance) {
     return (
@@ -152,12 +161,98 @@ export function InstanceDetailPage() {
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
-          <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
-            <PackageIcon className="size-8" />
-            <p className="text-sm">
-              Mod and resource pack management coming soon.
-            </p>
+          <div className="space-y-6">
+            {/* Mods Section */}
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Mods</h2>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => setAddModsOpen(true)}
+                >
+                  <PlusIcon className="size-4" />
+                  Add Mods
+                </Button>
+              </div>
+              {instance.mods.length > 0 ? (
+                <div className="grid gap-2">
+                  {instance.mods.map((mod) => (
+                    <ModCard
+                      key={mod.projectId}
+                      variant="installed"
+                      mod={mod}
+                      onToggle={() => toggleMod(instance.id, mod)}
+                      onRemove={() => removeMod(instance.id, mod)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
+                  <PackageIcon className="size-6" />
+                  <p className="text-sm">No mods installed</p>
+                </div>
+              )}
+            </div>
+
+            {/* Resource Packs Section */}
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Resource Packs</h2>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => setAddRpOpen(true)}
+                >
+                  <PlusIcon className="size-4" />
+                  Add Resource Packs
+                </Button>
+              </div>
+              {instance.resourcePacks.length > 0 ? (
+                <div className="grid gap-2">
+                  {instance.resourcePacks.map((rp) => (
+                    <div
+                      key={rp.projectId}
+                      className="flex items-center justify-between rounded-md border p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <ImageIcon className="size-5 text-muted-foreground" />
+                        <span className="text-sm font-medium">{rp.name}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="size-8 p-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => removeResourcePack(instance.id, rp)}
+                      >
+                        <Trash2Icon className="size-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
+                  <ImageIcon className="size-6" />
+                  <p className="text-sm">No resource packs installed</p>
+                </div>
+              )}
+            </div>
           </div>
+
+          <AddContentDialog
+            instance={instance}
+            contentType="mod"
+            open={addModsOpen}
+            onOpenChange={setAddModsOpen}
+          />
+          <AddContentDialog
+            instance={instance}
+            contentType="resourcepack"
+            open={addRpOpen}
+            onOpenChange={setAddRpOpen}
+          />
         </TabsContent>
 
         <TabsContent value="logs" className="mt-4">

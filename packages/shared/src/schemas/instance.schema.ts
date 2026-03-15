@@ -7,16 +7,28 @@ export const ModEntrySchema = z.object({
   projectId: z.string(),
   versionId: z.string(),
   name: z.string(),
+  fileName: z.string(),
   enabled: z.boolean(),
 })
 export type ModEntry = z.infer<typeof ModEntrySchema>
+
+export const ResourcePackEntrySchema = z.object({
+  projectId: z.string(),
+  versionId: z.string(),
+  name: z.string(),
+  fileName: z.string(),
+})
+export type ResourcePackEntry = z.infer<typeof ResourcePackEntrySchema>
 
 export const InstanceSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1),
   minecraftVersion: z.string(),
   modLoader: ModLoaderSchema,
-  mods: z.array(ModEntrySchema),
+  modLoaderVersion: z.string().optional(),
+  effectiveVersionId: z.string().optional(),
+  mods: z.array(ModEntrySchema).default([]),
+  resourcePacks: z.array(ResourcePackEntrySchema).default([]),
   javaPath: z.string().optional(),
   jvmArgs: z.string().optional(),
   ramMb: z.number().int().positive().optional(),

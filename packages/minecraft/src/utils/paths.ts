@@ -29,6 +29,28 @@ export function getNativesDir(gameDir: string, versionId: string): string {
   return join(gameDir, 'versions', versionId, 'natives')
 }
 
+export function getInstanceDir(gameDir: string, instanceId: string): string {
+  return join(gameDir, 'instances', instanceId)
+}
+
+export function getInstanceModsDir(gameDir: string, instanceId: string): string {
+  return join(getInstanceDir(gameDir, instanceId), 'mods')
+}
+
+export function getInstanceResourcePacksDir(gameDir: string, instanceId: string): string {
+  return join(getInstanceDir(gameDir, instanceId), 'resourcepacks')
+}
+
+export async function ensureInstanceDirs(gameDir: string, instanceId: string): Promise<void> {
+  const instanceDir = getInstanceDir(gameDir, instanceId)
+  await Promise.all([
+    mkdir(join(instanceDir, 'mods'), { recursive: true }),
+    mkdir(join(instanceDir, 'resourcepacks'), { recursive: true }),
+    mkdir(join(instanceDir, 'config'), { recursive: true }),
+    mkdir(join(instanceDir, 'saves'), { recursive: true }),
+  ])
+}
+
 export async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true })
 }

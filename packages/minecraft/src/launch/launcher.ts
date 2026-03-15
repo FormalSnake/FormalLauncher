@@ -4,10 +4,15 @@ import { resolveLibraries } from '../download/libraries'
 import { extractNatives } from './natives'
 import { buildClasspath, buildJvmArgs, buildGameArgs } from './arguments'
 import { resolveJava } from './java-resolver'
+import { ensureInstanceDirs, getInstanceDir } from '../utils/paths'
 import type { LaunchOptions, GameProcess } from '../types'
 
 export async function launchMinecraft(options: LaunchOptions): Promise<GameProcess> {
-  const { versionId, gameDir, auth, javaPath, jvmArgs, ramMb = 2048 } = options
+  const { versionId, gameDir, auth, instanceId, javaPath, jvmArgs, ramMb = 2048 } = options
+
+  if (instanceId) {
+    await ensureInstanceDirs(gameDir, instanceId)
+  }
 
   // Load version JSON (must be downloaded already)
   const versionJson = await loadCachedVersionJson(gameDir, versionId)
@@ -29,6 +34,7 @@ export async function launchMinecraft(options: LaunchOptions): Promise<GameProce
   const ctx = {
     versionJson,
     gameDir,
+    instanceId,
     auth,
     nativesDir,
     classpath,
@@ -40,8 +46,9 @@ export async function launchMinecraft(options: LaunchOptions): Promise<GameProce
   const fullArgs = [...buildJvmArgs(ctx), versionJson.mainClass, ...buildGameArgs(ctx)]
 
   // Spawn Java process
+  const cwd = instanceId ? getInstanceDir(gameDir, instanceId) : gameDir
   const child = spawn(resolvedJavaPath, fullArgs, {
-    cwd: gameDir,
+    cwd,
     detached: true,
   })
 
