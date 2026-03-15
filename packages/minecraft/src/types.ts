@@ -56,7 +56,8 @@ export interface LibraryDownloads {
 
 export interface LibraryEntry {
   name: string
-  downloads: LibraryDownloads
+  downloads?: LibraryDownloads
+  url?: string
   rules?: Rule[]
   natives?: Record<string, string>
   extract?: { exclude?: string[] }
@@ -79,6 +80,7 @@ export interface VersionJson {
   id: string
   type: string
   mainClass: string
+  inheritsFrom?: string
   minecraftArguments?: string
   arguments?: {
     game: (string | ArgumentEntry)[]

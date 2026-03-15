@@ -1,4 +1,4 @@
-import { fetchVersionJson, loadCachedVersionJson, saveVersionJson } from '../versions/version-json'
+import { fetchVersionJson, loadAndMergeVersionJson, loadCachedVersionJson, saveVersionJson } from '../versions/version-json'
 import { fetchVersionManifest } from '../versions/manifest'
 import { downloadClientJar } from './client-jar'
 import { resolveLibraries, downloadLibraries } from './libraries'
@@ -18,7 +18,7 @@ export async function downloadGameFiles(
   // 1. Get version JSON (cached or fetch)
   onProgress?.({ phase: 'version-json', current: 0, total: 1 })
 
-  let versionJson = await loadCachedVersionJson(gameDir, versionId)
+  let versionJson = await loadAndMergeVersionJson(gameDir, versionId)
   if (!versionJson) {
     const manifest = await fetchVersionManifest()
     const entry = manifest.versions.find((v) => v.id === versionId)

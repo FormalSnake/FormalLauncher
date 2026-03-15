@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { loadCachedVersionJson } from '../versions/version-json'
+import { loadAndMergeVersionJson } from '../versions/version-json'
 import { resolveLibraries } from '../download/libraries'
 import { extractNatives } from './natives'
 import { buildClasspath, buildJvmArgs, buildGameArgs } from './arguments'
@@ -15,7 +15,7 @@ export async function launchMinecraft(options: LaunchOptions): Promise<GameProce
   }
 
   // Load version JSON (must be downloaded already)
-  const versionJson = await loadCachedVersionJson(gameDir, versionId)
+  const versionJson = await loadAndMergeVersionJson(gameDir, versionId)
   if (!versionJson) {
     throw new Error(`Version ${versionId} not downloaded. Run downloadGameFiles first.`)
   }
