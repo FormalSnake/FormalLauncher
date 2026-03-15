@@ -1,13 +1,46 @@
 import { useNavigate } from 'react-router'
 import { InstanceCard } from '@/components/shared/instance-card'
 import { Button } from '@/components/ui/button'
-import { mockInstances } from '@/data/mock'
+import { useInstancesStore } from '@/store/instances.store'
 import { PlayIcon, PlusIcon } from 'lucide-react'
+import { useLaunch } from '@/hooks/use-launch'
+import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 
 export function HomePage() {
   const navigate = useNavigate()
-  const recentInstances = mockInstances.slice(0, 3)
-  const lastInstance = mockInstances[0]
+  const instances = useInstancesStore((s) => s.instances)
+  const recentInstances = instances.slice(0, 3)
+  const lastInstance = instances[0]
+  const activeAccount = useMinecraftAccountsStore((s) => s.getActiveAccount())
+  const { launch, isLaunching, isRunning } = useLaunch()
+
+  const handleQuickPlay = () => {
+    if (!lastInstance) return
+    if (!activeAccount) {
+      navigate('/accounts')
+      return
+    }
+    launch(lastInstance.id)
+  }
+
+  if (instances.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-20">
+        <p className="text-lg font-medium">Welcome to FormalLauncher</p>
+        <p className="text-sm text-muted-foreground">
+          Create your first instance to get started.
+        </p>
+        <Button
+          size="lg"
+          className="gap-2"
+          onClick={() => navigate('/instances')}
+        >
+          <PlusIcon className="size-4" />
+          Create Instance
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -23,11 +56,21 @@ export function HomePage() {
       <section>
         <h2 className="mb-4 text-lg font-semibold">Quick Actions</h2>
         <div className="flex gap-3">
-          <Button size="lg" className="gap-2" onClick={() => navigate(`/instances/${lastInstance.id}`)}>
+          <Button
+            size="lg"
+            className="gap-2"
+            onClick={handleQuickPlay}
+            disabled={isLaunching || isRunning}
+          >
             <PlayIcon className="size-4" />
             Play {lastInstance.name}
           </Button>
-          <Button size="lg" variant="outline" className="gap-2" onClick={() => navigate('/instances')}>
+          <Button
+            size="lg"
+            variant="outline"
+            className="gap-2"
+            onClick={() => navigate('/instances')}
+          >
             <PlusIcon className="size-4" />
             Create Instance
           </Button>

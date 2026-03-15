@@ -9,9 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { mockSettings } from '@/data/mock'
+import { useSettingsStore } from '@/store/settings.store'
 
 export function SettingsPage() {
+  const {
+    gameDirectory,
+    defaultRamMb,
+    defaultJvmArgs,
+    javaPath,
+    setDefaultRamMb,
+    setDefaultJvmArgs,
+    setJavaPath,
+  } = useSettingsStore()
+
   return (
     <div>
       <div className="max-w-lg space-y-6">
@@ -23,21 +33,32 @@ export function SettingsPage() {
             <div className="grid gap-2">
               <Label>Default RAM Allocation (MB)</Label>
               <Slider
-                defaultValue={[mockSettings.ramMb]}
+                value={[defaultRamMb]}
+                onValueChange={(v) => setDefaultRamMb(v[0])}
                 min={1024}
                 max={16384}
                 step={512}
               />
               <span className="text-xs text-muted-foreground">
-                {mockSettings.ramMb} MB
+                {defaultRamMb} MB
               </span>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="default-jvm">Default JVM Arguments</Label>
               <Input
                 id="default-jvm"
-                defaultValue={mockSettings.jvmArgs}
+                value={defaultJvmArgs}
+                onChange={(e) => setDefaultJvmArgs(e.target.value)}
                 placeholder="-XX:+UseG1GC"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="java-path">Java Path</Label>
+              <Input
+                id="java-path"
+                value={javaPath}
+                onChange={(e) => setJavaPath(e.target.value)}
+                placeholder="java"
               />
             </div>
           </div>
@@ -51,7 +72,7 @@ export function SettingsPage() {
           </h2>
           <div className="grid gap-2">
             <Label>Game Directory</Label>
-            <Input value={mockSettings.gameDirectory} readOnly />
+            <Input value={gameDirectory} readOnly />
           </div>
         </section>
 

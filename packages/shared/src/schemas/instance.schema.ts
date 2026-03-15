@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const ModLoaderSchema = z.enum(['fabric', 'forge', 'quilt', 'neoforge'])
+export const ModLoaderSchema = z.enum(['vanilla', 'fabric', 'forge', 'quilt', 'neoforge'])
 export type ModLoader = z.infer<typeof ModLoaderSchema>
 
 export const ModEntrySchema = z.object({

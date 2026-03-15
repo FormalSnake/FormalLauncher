@@ -21,20 +21,43 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
-import { mockInstances } from '@/data/mock'
-import { PlusIcon } from 'lucide-react'
+import { useInstancesStore } from '@/store/instances.store'
+import { useVersions } from '@/hooks/use-versions'
+import { PlusIcon, LoaderIcon } from 'lucide-react'
 
 export function InstancesPage() {
+  const { instances, addInstance } = useInstancesStore()
   const [search, setSearch] = useState('')
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [version, setVersion] = useState('')
+  const [ramMb, setRamMb] = useState(4096)
+  const { versions, latest, isLoading: versionsLoading } = useVersions('release')
 
-  const filtered = mockInstances.filter((i) =>
-    i.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = instances.filter((i) =>
+    i.name.toLowerCase().includes(search.toLowerCase()),
   )
+
+  const handleCreate = () => {
+    if (!name.trim() || !version) return
+    addInstance({
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      minecraftVersion: version,
+      modLoader: 'vanilla',
+      mods: [],
+      ramMb,
+    })
+    setOpen(false)
+    setName('')
+    setVersion('')
+    setRamMb(4096)
+  }
 
   return (
     <div>
       <div className="mb-4 flex items-center gap-4">
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={<Button className="gap-2" />}>
             <PlusIcon className="size-4" />
             New Instance
@@ -46,47 +69,56 @@ export function InstancesPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="My Instance" />
+                <Input
+                  id="name"
+                  placeholder="My Instance"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div className="grid gap-2">
                 <Label>Minecraft Version</Label>
-                <Select defaultValue="1.21.4">
+                <Select
+                  value={version}
+                  onValueChange={setVersion}
+                  defaultValue={latest?.release}
+                >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={versionsLoading ? 'Loading...' : 'Select version'} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1.21.4">1.21.4</SelectItem>
-                    <SelectItem value="1.21.3">1.21.3</SelectItem>
-                    <SelectItem value="1.20.4">1.20.4</SelectItem>
-                    <SelectItem value="1.20.1">1.20.1</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label>Mod Loader</Label>
-                <Select defaultValue="fabric">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fabric">Fabric</SelectItem>
-                    <SelectItem value="forge">Forge</SelectItem>
-                    <SelectItem value="quilt">Quilt</SelectItem>
-                    <SelectItem value="neoforge">NeoForge</SelectItem>
+                    {versionsLoading && (
+                      <div className="flex items-center justify-center py-2">
+                        <LoaderIcon className="size-4 animate-spin" />
+                      </div>
+                    )}
+                    {versions.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.id}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
                 <Label>RAM (MB)</Label>
-                <Slider defaultValue={[4096]} min={1024} max={16384} step={512} />
-                <span className="text-xs text-muted-foreground">4096 MB</span>
+                <Slider
+                  value={[ramMb]}
+                  onValueChange={(v) => setRamMb(v[0])}
+                  min={1024}
+                  max={16384}
+                  step={512}
+                />
+                <span className="text-xs text-muted-foreground">{ramMb} MB</span>
               </div>
             </div>
             <DialogFooter>
               <DialogClose render={<Button variant="outline" />}>
                 Cancel
               </DialogClose>
-              <Button>Create</Button>
+              <Button onClick={handleCreate} disabled={!name.trim() || !version}>
+                Create
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -106,7 +138,9 @@ export function InstancesPage() {
         ))}
         {filtered.length === 0 && (
           <p className="col-span-full text-center text-sm text-muted-foreground">
-            No instances found.
+            {instances.length === 0
+              ? 'No instances yet. Create your first one!'
+              : 'No instances found.'}
           </p>
         )}
       </div>

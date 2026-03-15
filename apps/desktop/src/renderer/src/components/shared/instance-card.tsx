@@ -10,7 +10,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { LoaderBadge } from '@/components/shared/loader-badge'
-import { PlayIcon, MoreVerticalIcon, CopyIcon, TrashIcon, PencilIcon } from 'lucide-react'
+import { useInstancesStore } from '@/store/instances.store'
+import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
+import { useGameStore } from '@/store/game.store'
+import { useLaunch } from '@/hooks/use-launch'
+import {
+  PlayIcon,
+  MoreVerticalIcon,
+  TrashIcon,
+  PencilIcon,
+  LoaderIcon,
+} from 'lucide-react'
 
 interface InstanceCardProps {
   instance: Instance
@@ -18,6 +28,27 @@ interface InstanceCardProps {
 
 export function InstanceCard({ instance }: InstanceCardProps) {
   const navigate = useNavigate()
+  const removeInstance = useInstancesStore((s) => s.removeInstance)
+  const activeAccount = useMinecraftAccountsStore((s) => s.getActiveAccount())
+  const { launchingInstanceId, runningInstanceId } = useGameStore()
+  const { launch } = useLaunch()
+
+  const isThisLaunching = launchingInstanceId === instance.id
+  const isThisRunning = runningInstanceId === instance.id
+  const isBusy = !!launchingInstanceId || !!runningInstanceId
+
+  const handlePlay = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!activeAccount) {
+      navigate('/accounts')
+      return
+    }
+    launch(instance.id)
+  }
+
+  const handleDelete = () => {
+    removeInstance(instance.id)
+  }
 
   return (
     <Card
@@ -31,12 +62,15 @@ export function InstanceCard({ instance }: InstanceCardProps) {
             <Button
               size="icon-sm"
               variant="ghost"
-              className="text-primary"
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
+              className={isThisRunning ? 'text-green-400' : 'text-primary'}
+              onClick={handlePlay}
+              disabled={isBusy}
             >
-              <PlayIcon className="size-4" />
+              {isThisLaunching ? (
+                <LoaderIcon className="size-4 animate-spin" />
+              ) : (
+                <PlayIcon className="size-4" />
+              )}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -51,15 +85,22 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                 <MoreVerticalIcon className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigate(`/instances/${instance.id}`)
+                  }}
+                >
                   <PencilIcon className="size-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CopyIcon className="size-4" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDelete()
+                  }}
+                >
                   <TrashIcon className="size-4" />
                   Delete
                 </DropdownMenuItem>
@@ -72,9 +113,16 @@ export function InstanceCard({ instance }: InstanceCardProps) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{instance.minecraftVersion}</Badge>
           <LoaderBadge loader={instance.modLoader} />
-          <span className="text-xs text-muted-foreground">
-            {instance.mods.length} mod{instance.mods.length !== 1 ? 's' : ''}
-          </span>
+          {instance.mods.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {instance.mods.length} mod{instance.mods.length !== 1 ? 's' : ''}
+            </span>
+          )}
+          {isThisRunning && (
+            <Badge variant="outline" className="bg-green-500/15 text-green-400">
+              Running
+            </Badge>
+          )}
         </div>
       </CardContent>
     </Card>
