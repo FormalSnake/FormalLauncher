@@ -60,10 +60,10 @@ export function InstanceDetailPage() {
   const missingIconIds = useMemo(() => {
     if (!instance) return []
     const ids: string[] = []
-    for (const mod of instance.mods) {
+    for (const mod of instance.mods ?? []) {
       if (!mod.iconUrl) ids.push(mod.projectId)
     }
-    for (const rp of instance.resourcePacks) {
+    for (const rp of instance.resourcePacks ?? []) {
       if (!rp.iconUrl) ids.push(rp.projectId)
     }
     return [...new Set(ids)]
@@ -198,9 +198,9 @@ export function InstanceDetailPage() {
                   Add Mods
                 </Button>
               </div>
-              {instance.mods.length > 0 ? (
+              {(instance.mods ?? []).length > 0 ? (
                 <ContentTable
-                  items={instance.mods}
+                  items={instance.mods ?? []}
                   contentType="mod"
                   iconMap={iconMap}
                   onToggle={(mod) => toggleMod(instance.id, mod)}
@@ -228,9 +228,9 @@ export function InstanceDetailPage() {
                   Add Resource Packs
                 </Button>
               </div>
-              {instance.resourcePacks.length > 0 ? (
+              {(instance.resourcePacks ?? []).length > 0 ? (
                 <ContentTable
-                  items={instance.resourcePacks}
+                  items={instance.resourcePacks ?? []}
                   contentType="resourcepack"
                   iconMap={iconMap}
                   onRemove={(rp) => removeResourcePack(instance.id, rp as any)}

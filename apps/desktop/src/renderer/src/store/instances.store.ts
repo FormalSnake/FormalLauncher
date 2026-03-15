@@ -109,6 +109,17 @@ export const useInstancesStore = create<InstancesState>()(
       partialize: (state) => ({
         instances: state.instances,
       }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<InstancesState> | undefined
+        return {
+          ...current,
+          instances: (p?.instances ?? []).map((i) => ({
+            ...i,
+            mods: i.mods ?? [],
+            resourcePacks: i.resourcePacks ?? [],
+          })),
+        }
+      },
     },
   ),
 )

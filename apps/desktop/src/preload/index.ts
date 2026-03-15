@@ -56,6 +56,14 @@ const minecraftAPI = {
   setActiveCape: (accessToken: string, capeId: string | null) =>
     ipcRenderer.invoke('minecraft:set-active-cape', accessToken, capeId),
 
+  // Prism Launcher import
+  scanPrismInstances: (dir?: string) =>
+    ipcRenderer.invoke('minecraft:scan-prism-instances', dir),
+  selectPrismDirectory: () =>
+    ipcRenderer.invoke('minecraft:select-prism-directory'),
+  importPrismInstance: (prismDir: string, instanceDirName: string, gameDir: string) =>
+    ipcRenderer.invoke('minecraft:import-prism-instance', prismDir, instanceDirName, gameDir),
+
   // Event listeners
   onDownloadProgress: (callback: (progress: unknown) => void) => {
     const handler = (_event: unknown, progress: unknown): void => callback(progress)

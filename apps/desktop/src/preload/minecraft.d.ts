@@ -5,6 +5,26 @@ import type {
   DownloadProgress,
   LaunchOptions,
 } from '@formallauncher/minecraft'
+import type { Instance } from '@formallauncher/shared'
+
+interface PrismInstanceInfo {
+  dirName: string
+  name: string
+  minecraftVersion: string
+  modLoader: string
+  modLoaderVersion?: string
+  modCount: number
+  resourcePackCount: number
+  ramMb?: number
+  jvmArgs?: string
+  javaPath?: string
+}
+
+interface PrismScanResult {
+  found: boolean
+  path: string | null
+  instances: PrismInstanceInfo[]
+}
 
 interface FabricLoaderVersion {
   separator: string
@@ -59,6 +79,11 @@ interface MinecraftAPI {
   uploadSkin(accessToken: string, variant: 'classic' | 'slim'): Promise<boolean | null>
   setSkinVariant(accessToken: string, skinUrl: string, variant: 'classic' | 'slim'): Promise<void>
   setActiveCape(accessToken: string, capeId: string | null): Promise<void>
+
+  // Prism Launcher import
+  scanPrismInstances(dir?: string): Promise<PrismScanResult>
+  selectPrismDirectory(): Promise<PrismScanResult>
+  importPrismInstance(prismDir: string, instanceDirName: string, gameDir: string): Promise<Instance>
 
   // Events
   onDownloadProgress(callback: (progress: DownloadProgress) => void): () => void

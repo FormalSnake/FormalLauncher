@@ -11,7 +11,8 @@ import {
   ensureInstanceDirs,
   downloadFile,
 } from '@formallauncher/minecraft'
-import { readdir, unlink, rename } from 'node:fs/promises'
+import { readdir, readFile, unlink, rename, cp, stat } from 'node:fs/promises'
+import { homedir, platform } from 'node:os'
 import type { DownloadProgress, GameProcess, LaunchOptions } from '@formallauncher/minecraft'
 
 let mainWindow: BrowserWindow | null = null
@@ -204,6 +205,265 @@ function setupMinecraftIPC(): void {
     async (_event, accessToken: string, capeId: string | null) => {
       const { setActiveCape } = await import('@formallauncher/minecraft/skin')
       return setActiveCape(accessToken, capeId)
+    },
+  )
+
+  // ── Prism Launcher Import ──
+
+  async function scanPrismDir(dir: string) {
+    const instances: {
+      dirName: string
+      name: string
+      minecraftVersion: string
+      modLoader: string
+      modLoaderVersion?: string
+      modCount: number
+      resourcePackCount: number
+      ramMb?: number
+      jvmArgs?: string
+      javaPath?: string
+    }[] = []
+
+    let dirNames: string[]
+    try {
+      dirNames = await readdir(dir)
+    } catch {
+      return { found: false, path: null, instances: [] }
+    }
+
+    for (const dirName of dirNames) {
+      const instanceDir = join(dir, dirName)
+      try {
+        const s = await stat(instanceDir)
+        if (!s.isDirectory()) continue
+      } catch {
+        continue
+      }
+      try { await stat(join(instanceDir, 'instance.cfg')) } catch { continue }
+
+      // Parse instance.cfg
+      const cfg: Record<string, string> = {}
+      try {
+        const raw = await readFile(join(instanceDir, 'instance.cfg'), 'utf-8')
+        for (const line of raw.split('\n')) {
+          const idx = line.indexOf('=')
+          if (idx > 0) cfg[line.slice(0, idx).trim()] = line.slice(idx + 1).trim()
+        }
+      } catch {
+        continue
+      }
+
+      // Parse mmc-pack.json
+      let mcVersion = ''
+      let modLoader = 'vanilla'
+      let modLoaderVersion: string | undefined
+
+      try {
+        const pack = JSON.parse(await readFile(join(instanceDir, 'mmc-pack.json'), 'utf-8'))
+        for (const comp of pack.components ?? []) {
+          const uid = comp.cachedName ? undefined : comp.uid ?? ''
+          const id = comp.uid ?? uid ?? ''
+          if (id === 'net.minecraft') {
+            mcVersion = comp.version ?? ''
+          } else if (id === 'net.fabricmc.fabric-loader') {
+            modLoader = 'fabric'
+            modLoaderVersion = comp.version
+          } else if (id === 'org.quiltmc.quilt-loader') {
+            modLoader = 'quilt'
+            modLoaderVersion = comp.version
+          } else if (id === 'net.minecraftforge') {
+            modLoader = 'forge'
+            modLoaderVersion = comp.version
+          } else if (id === 'net.neoforged.neoforge') {
+            modLoader = 'neoforge'
+            modLoaderVersion = comp.version
+          }
+        }
+      } catch {
+        // No mmc-pack.json — skip
+        continue
+      }
+
+      if (!mcVersion) continue
+
+      // Count mods and resource packs
+      let modCount = 0
+      let resourcePackCount = 0
+      const mcDir = join(instanceDir, '.minecraft')
+      try {
+        modCount = (await readdir(join(mcDir, 'mods'))).filter(
+          (f) => f.endsWith('.jar') || f.endsWith('.jar.disabled'),
+        ).length
+      } catch {
+        /* no mods dir */
+      }
+      try {
+        resourcePackCount = (await readdir(join(mcDir, 'resourcepacks'))).length
+      } catch {
+        /* no resourcepacks dir */
+      }
+
+      instances.push({
+        dirName,
+        name: cfg['name'] || dirName,
+        minecraftVersion: mcVersion,
+        modLoader,
+        modLoaderVersion,
+        modCount,
+        resourcePackCount,
+        ramMb: cfg['MaxMemAlloc'] ? parseInt(cfg['MaxMemAlloc'], 10) : undefined,
+        jvmArgs: cfg['JvmArgs'] || undefined,
+        javaPath: cfg['JavaPath'] || undefined,
+      })
+    }
+
+    return { found: instances.length > 0, path: dir, instances }
+  }
+
+  function getDefaultPrismDir(): string {
+    const p = platform()
+    const home = homedir()
+    if (p === 'darwin') return join(home, 'Library', 'Application Support', 'PrismLauncher', 'instances')
+    if (p === 'win32') return join(process.env['APPDATA'] || join(home, 'AppData', 'Roaming'), 'PrismLauncher', 'instances')
+    return join(home, '.local', 'share', 'PrismLauncher', 'instances')
+  }
+
+  ipcMain.handle('minecraft:scan-prism-instances', async (_event, dir?: string) => {
+    const targetDir = dir || getDefaultPrismDir()
+    return scanPrismDir(targetDir)
+  })
+
+  ipcMain.handle('minecraft:select-prism-directory', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select Prism Launcher instances folder',
+    })
+    if (result.canceled || result.filePaths.length === 0) {
+      return { found: false, path: null, instances: [] }
+    }
+    return scanPrismDir(result.filePaths[0])
+  })
+
+  ipcMain.handle(
+    'minecraft:import-prism-instance',
+    async (_event, prismDir: string, instanceDirName: string, gameDir: string) => {
+      const instanceId = crypto.randomUUID()
+      await ensureInstanceDirs(gameDir, instanceId)
+
+      const srcDir = join(prismDir, instanceDirName)
+      const destDir = join(gameDir, 'instances', instanceId)
+      const mcDir = join(srcDir, '.minecraft')
+
+      // Copy game directories
+      for (const folder of ['mods', 'resourcepacks', 'config', 'saves']) {
+        try {
+          await stat(join(mcDir, folder))
+          await cp(join(mcDir, folder), join(destDir, folder), { recursive: true })
+        } catch {
+          /* dir doesn't exist, skip */
+        }
+      }
+
+      // Parse instance.cfg
+      const cfg: Record<string, string> = {}
+      try {
+        const raw = await readFile(join(srcDir, 'instance.cfg'), 'utf-8')
+        for (const line of raw.split('\n')) {
+          const idx = line.indexOf('=')
+          if (idx > 0) cfg[line.slice(0, idx).trim()] = line.slice(idx + 1).trim()
+        }
+      } catch {
+        /* */
+      }
+
+      // Parse mmc-pack.json
+      let mcVersion = ''
+      let modLoader = 'vanilla'
+      let modLoaderVersion: string | undefined
+
+      try {
+        const pack = JSON.parse(await readFile(join(srcDir, 'mmc-pack.json'), 'utf-8'))
+        for (const comp of pack.components ?? []) {
+          const id = comp.uid ?? ''
+          if (id === 'net.minecraft') mcVersion = comp.version ?? ''
+          else if (id === 'net.fabricmc.fabric-loader') {
+            modLoader = 'fabric'
+            modLoaderVersion = comp.version
+          } else if (id === 'org.quiltmc.quilt-loader') {
+            modLoader = 'quilt'
+            modLoaderVersion = comp.version
+          } else if (id === 'net.minecraftforge') {
+            modLoader = 'forge'
+            modLoaderVersion = comp.version
+          } else if (id === 'net.neoforged.neoforge') {
+            modLoader = 'neoforge'
+            modLoaderVersion = comp.version
+          }
+        }
+      } catch {
+        /* */
+      }
+
+      // Install Fabric if applicable
+      let effectiveVersionId: string | undefined
+      if (modLoader === 'fabric' && mcVersion) {
+        try {
+          const { installFabric } = await import('@formallauncher/minecraft/fabric')
+          effectiveVersionId = await installFabric(gameDir, mcVersion, modLoaderVersion)
+        } catch {
+          /* Fabric install failed — instance still usable */
+        }
+      }
+
+      // Build mod entries from copied mods dir
+      const mods: { projectId: string; versionId: string; name: string; fileName: string; enabled: boolean }[] = []
+      try {
+        const modFiles = await readdir(join(destDir, 'mods'))
+        for (const f of modFiles) {
+          if (!f.endsWith('.jar') && !f.endsWith('.jar.disabled')) continue
+          const enabled = !f.endsWith('.disabled')
+          const displayName = f.replace(/\.jar(\.disabled)?$/, '')
+          mods.push({
+            projectId: f,
+            versionId: '',
+            name: displayName,
+            fileName: f,
+            enabled,
+          })
+        }
+      } catch {
+        /* no mods */
+      }
+
+      // Build resource pack entries
+      const resourcePacks: { projectId: string; versionId: string; name: string; fileName: string }[] = []
+      try {
+        const rpFiles = await readdir(join(destDir, 'resourcepacks'))
+        for (const f of rpFiles) {
+          resourcePacks.push({
+            projectId: f,
+            versionId: '',
+            name: f.replace(/\.zip$/, ''),
+            fileName: f,
+          })
+        }
+      } catch {
+        /* no resource packs */
+      }
+
+      return {
+        id: instanceId,
+        name: cfg['name'] || instanceDirName,
+        minecraftVersion: mcVersion,
+        modLoader,
+        modLoaderVersion,
+        effectiveVersionId,
+        mods,
+        resourcePacks,
+        ramMb: cfg['MaxMemAlloc'] ? parseInt(cfg['MaxMemAlloc'], 10) : undefined,
+        javaPath: cfg['JavaPath'] || undefined,
+        jvmArgs: cfg['JvmArgs'] || undefined,
+      }
     },
   )
 }
