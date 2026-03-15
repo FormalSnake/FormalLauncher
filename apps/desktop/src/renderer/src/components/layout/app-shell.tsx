@@ -35,7 +35,7 @@ const bottomNav = [
 
 export function AppShell() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh">
       <Sidebar collapsible="none" className="border-r border-sidebar-border">
         <SidebarHeader className="px-4 py-4">
           <span className="text-lg font-bold tracking-tight text-primary">
