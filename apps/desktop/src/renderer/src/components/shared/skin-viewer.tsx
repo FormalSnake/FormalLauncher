@@ -41,27 +41,15 @@ export function SkinViewer({
     viewer.autoRotateSpeed = 1
     viewerRef.current = viewer
 
+    if (proxiedCape) {
+      viewer.loadCape(proxiedCape)
+    }
+
     return () => {
       viewer.dispose()
       viewerRef.current = null
     }
-  }, [width, height, proxiedSkin])
-
-  useEffect(() => {
-    const viewer = viewerRef.current
-    if (!viewer || !proxiedSkin) return
-    viewer.loadSkin(proxiedSkin, { model: slim ? 'slim' : 'default' })
-  }, [proxiedSkin, slim])
-
-  useEffect(() => {
-    const viewer = viewerRef.current
-    if (!viewer) return
-    if (proxiedCape) {
-      viewer.loadCape(proxiedCape)
-    } else {
-      viewer.resetCape()
-    }
-  }, [proxiedCape])
+  }, [width, height, proxiedSkin, proxiedCape, slim])
 
   return (
     <canvas

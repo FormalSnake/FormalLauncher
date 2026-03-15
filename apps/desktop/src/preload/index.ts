@@ -51,6 +51,8 @@ const minecraftAPI = {
     ipcRenderer.invoke('minecraft:get-skin-profile', accessToken),
   uploadSkin: (accessToken: string, variant: 'classic' | 'slim') =>
     ipcRenderer.invoke('minecraft:upload-skin', accessToken, variant),
+  setSkinVariant: (accessToken: string, skinUrl: string, variant: 'classic' | 'slim') =>
+    ipcRenderer.invoke('minecraft:set-skin-variant', accessToken, skinUrl, variant),
   setActiveCape: (accessToken: string, capeId: string | null) =>
     ipcRenderer.invoke('minecraft:set-active-cape', accessToken, capeId),
 

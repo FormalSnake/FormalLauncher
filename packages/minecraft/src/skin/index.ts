@@ -29,6 +29,22 @@ export async function uploadSkin(
   if (!res.ok) throw new Error(`Failed to upload skin: ${res.status}`)
 }
 
+export async function setSkinVariant(
+  accessToken: string,
+  skinUrl: string,
+  variant: 'classic' | 'slim',
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/skins`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ variant, url: skinUrl }),
+  })
+  if (!res.ok) throw new Error(`Failed to set skin variant: ${res.status}`)
+}
+
 export async function setActiveCape(
   accessToken: string,
   capeId: string | null,

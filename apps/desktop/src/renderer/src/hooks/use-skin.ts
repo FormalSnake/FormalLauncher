@@ -47,6 +47,28 @@ export function useUploadSkin() {
   })
 }
 
+export function useSetSkinVariant() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      accountId,
+      skinUrl,
+      variant,
+    }: {
+      accountId: string
+      skinUrl: string
+      variant: 'classic' | 'slim'
+    }) => {
+      const token = await ensureAccessToken(accountId)
+      return window.minecraft.setSkinVariant(token, skinUrl, variant)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['skin-profile'] })
+    },
+  })
+}
+
 export function useSetActiveCape() {
   const queryClient = useQueryClient()
 

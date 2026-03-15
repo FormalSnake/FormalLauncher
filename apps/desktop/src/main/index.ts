@@ -192,6 +192,14 @@ function setupMinecraftIPC(): void {
   )
 
   ipcMain.handle(
+    'minecraft:set-skin-variant',
+    async (_event, accessToken: string, skinUrl: string, variant: 'classic' | 'slim') => {
+      const { setSkinVariant } = await import('@formallauncher/minecraft/skin')
+      return setSkinVariant(accessToken, skinUrl, variant)
+    },
+  )
+
+  ipcMain.handle(
     'minecraft:set-active-cape',
     async (_event, accessToken: string, capeId: string | null) => {
       const { setActiveCape } = await import('@formallauncher/minecraft/skin')

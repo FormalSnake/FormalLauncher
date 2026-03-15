@@ -57,6 +57,7 @@ interface MinecraftAPI {
   // Skin
   getSkinProfile(accessToken: string): Promise<MinecraftProfileFull>
   uploadSkin(accessToken: string, variant: 'classic' | 'slim'): Promise<boolean | null>
+  setSkinVariant(accessToken: string, skinUrl: string, variant: 'classic' | 'slim'): Promise<void>
   setActiveCape(accessToken: string, capeId: string | null): Promise<void>
 
   // Events
