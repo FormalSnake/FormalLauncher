@@ -14,6 +14,7 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { TitleBar } from '@/components/layout/title-bar'
 import {
   HomeIcon,
   BoxesIcon,
@@ -80,9 +81,9 @@ export function AppShell() {
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
-        <div className="drag-region h-[52px] shrink-0 border-b border-border" />
-        <ScrollArea className="h-[calc(100vh-52px)]">
+      <SidebarInset className="flex flex-col overflow-hidden">
+        <TitleBar />
+        <ScrollArea className="flex-1">
           <div className="p-6">
             <Outlet />
           </div>

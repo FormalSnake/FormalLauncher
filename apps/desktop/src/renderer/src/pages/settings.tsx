@@ -1,4 +1,3 @@
-import { PageHeader } from '@/components/shared/page-header'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -15,8 +14,6 @@ import { mockSettings } from '@/data/mock'
 export function SettingsPage() {
   return (
     <div>
-      <PageHeader title="Settings" />
-
       <div className="max-w-lg space-y-6">
         <section>
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">

@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router'
-import { PageHeader } from '@/components/shared/page-header'
 import { InstanceCard } from '@/components/shared/instance-card'
 import { Button } from '@/components/ui/button'
 import { mockInstances } from '@/data/mock'
@@ -12,8 +11,6 @@ export function HomePage() {
 
   return (
     <div>
-      <PageHeader title="Home" />
-
       <section className="mb-8">
         <h2 className="mb-4 text-lg font-semibold">Recent Instances</h2>
         <div className="grid grid-cols-3 gap-4">

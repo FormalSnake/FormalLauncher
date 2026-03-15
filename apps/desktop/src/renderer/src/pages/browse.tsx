@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { PageHeader } from '@/components/shared/page-header'
 import { SearchBar } from '@/components/shared/search-bar'
 import { ModCard } from '@/components/shared/mod-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -24,8 +23,6 @@ export function BrowsePage() {
 
   return (
     <div>
-      <PageHeader title="Browse" description="Discover mods, resource packs, and modpacks from Modrinth" />
-
       <Tabs value={tab} onValueChange={(v) => setTab(v as Category)}>
         <TabsList className="mb-4">
           <TabsTrigger value="mod">Mods</TabsTrigger>

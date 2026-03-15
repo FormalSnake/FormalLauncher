@@ -1,4 +1,3 @@
-import { PageHeader } from '@/components/shared/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,8 +9,6 @@ import { PlusIcon, UserIcon } from 'lucide-react'
 export function AccountsPage() {
   return (
     <div>
-      <PageHeader title="Accounts" />
-
       <section className="mb-8">
         <h2 className="mb-4 text-lg font-semibold">Minecraft Accounts</h2>
         <div className="grid gap-3">
