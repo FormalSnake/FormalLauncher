@@ -1,8 +1,12 @@
+import { RouterProvider } from 'react-router'
+import { router } from '@/lib/routes'
+import { TooltipProvider } from '@/components/ui/tooltip'
+
 function App(): React.JSX.Element {
   return (
-    <div className="flex h-screen items-center justify-center bg-neutral-950 text-neutral-50">
-      <h1 className="text-2xl font-bold">FormalLauncher</h1>
-    </div>
+    <TooltipProvider>
+      <RouterProvider router={router} />
+    </TooltipProvider>
   )
 }
 
