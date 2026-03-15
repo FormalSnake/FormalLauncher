@@ -17,6 +17,7 @@ export const InstanceSchema = z.object({
   minecraftVersion: z.string(),
   modLoader: ModLoaderSchema,
   mods: z.array(ModEntrySchema),
+  javaPath: z.string().optional(),
   jvmArgs: z.string().optional(),
   ramMb: z.number().int().positive().optional(),
 })

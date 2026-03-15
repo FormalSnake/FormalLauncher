@@ -41,6 +41,9 @@ export function InstanceDetailPage() {
 
   const [activeTab, setActiveTab] = useState('overview')
   const [settingsRam, setSettingsRam] = useState(instance?.ramMb ?? 4096)
+  const [settingsJavaPath, setSettingsJavaPath] = useState(
+    instance?.javaPath ?? '',
+  )
   const [settingsJvm, setSettingsJvm] = useState(instance?.jvmArgs ?? '')
   const [settingsVersion, setSettingsVersion] = useState(
     instance?.minecraftVersion ?? '',
@@ -79,6 +82,7 @@ export function InstanceDetailPage() {
   const handleSaveSettings = () => {
     updateInstance(instance.id, {
       ramMb: settingsRam,
+      javaPath: settingsJavaPath || undefined,
       jvmArgs: settingsJvm || undefined,
       minecraftVersion: settingsVersion,
     })
@@ -173,6 +177,18 @@ export function InstanceDetailPage() {
               />
               <span className="text-xs text-muted-foreground">
                 {settingsRam} MB
+              </span>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="java-path">Java Path</Label>
+              <Input
+                id="java-path"
+                value={settingsJavaPath}
+                onChange={(e) => setSettingsJavaPath(e.target.value)}
+                placeholder="Auto-detect (leave empty)"
+              />
+              <span className="text-xs text-muted-foreground">
+                Leave empty to auto-detect or download the correct Java version
               </span>
             </div>
             <div className="grid gap-2">

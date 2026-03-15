@@ -25,7 +25,7 @@ export interface VersionManifest {
 }
 
 export interface DownloadProgress {
-  phase: 'version-json' | 'client-jar' | 'libraries' | 'assets'
+  phase: 'version-json' | 'client-jar' | 'libraries' | 'assets' | 'java-runtime'
   current: number
   total: number
   fileName?: string

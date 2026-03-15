@@ -54,7 +54,12 @@ function setupMinecraftIPC(): void {
   })
 
   ipcMain.handle('minecraft:launch', async (_event, options: LaunchOptions) => {
-    const process = await launchMinecraft(options)
+    const process = await launchMinecraft({
+      ...options,
+      onProgress: (progress) => {
+        mainWindow?.webContents.send('minecraft:download-progress', progress)
+      },
+    })
 
     process.on('stdout', (data) => {
       mainWindow?.webContents.send('minecraft:stdout', data)

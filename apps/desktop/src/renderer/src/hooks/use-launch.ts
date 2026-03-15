@@ -100,7 +100,7 @@ export function useLaunch() {
           versionId: instance.minecraftVersion,
           gameDir,
           auth,
-          javaPath: settings.javaPath || undefined,
+          javaPath: instance.javaPath || settings.javaPath || undefined,
           jvmArgs: (instance.jvmArgs || settings.defaultJvmArgs || undefined)
             ?.split(' ')
             .filter(Boolean),

@@ -113,7 +113,7 @@ export interface AssetIndexFile {
 // ── Download Progress ──
 
 export interface DownloadProgress {
-  phase: 'version-json' | 'client-jar' | 'libraries' | 'assets'
+  phase: 'version-json' | 'client-jar' | 'libraries' | 'assets' | 'java-runtime'
   current: number
   total: number
   fileName?: string
@@ -128,6 +128,7 @@ export interface LaunchOptions {
   javaPath?: string
   jvmArgs?: string[]
   ramMb?: number
+  onProgress?: (progress: DownloadProgress) => void
 }
 
 export interface ResolvedLibrary {
