@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, NavLink } from 'react-router'
 import {
   Sidebar,
@@ -34,7 +35,13 @@ const bottomNav = [
   { to: '/settings', icon: SettingsIcon, label: 'Settings' },
 ]
 
+export interface AppShellContext {
+  setTitleOverride: (title: string | null) => void
+}
+
 export function AppShell() {
+  const [titleOverride, setTitleOverride] = useState<string | null>(null)
+
   return (
     <SidebarProvider className="h-svh">
       <Sidebar collapsible="none" className="border-r border-sidebar-border">
@@ -82,10 +89,10 @@ export function AppShell() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col overflow-hidden">
-        <TitleBar />
+        <TitleBar titleOverride={titleOverride} />
         <ScrollArea className="flex-1 overflow-hidden">
           <div className="p-6">
-            <Outlet />
+            <Outlet context={{ setTitleOverride } satisfies AppShellContext} />
           </div>
         </ScrollArea>
       </SidebarInset>

@@ -1,4 +1,6 @@
-import { useParams, useNavigate } from 'react-router'
+import { useEffect } from 'react'
+import { useParams, useNavigate, useOutletContext } from 'react-router'
+import type { AppShellContext } from '@/components/layout/app-shell'
 import { useModrinthProject } from '@/hooks/use-modrinth'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -6,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -33,7 +36,13 @@ function formatDate(dateStr: string): string {
 export function ProjectDetailPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { setTitleOverride } = useOutletContext<AppShellContext>()
   const { data: project, isLoading, error } = useModrinthProject(slug ?? '')
+
+  useEffect(() => {
+    if (project) setTitleOverride(project.title)
+    return () => setTitleOverride(null)
+  }, [project, setTitleOverride])
 
   if (isLoading) {
     return (
@@ -144,7 +153,7 @@ export function ProjectDetailPage() {
 
       <div className="mt-6 grid grid-cols-[1fr_280px] gap-6">
         <div className="prose prose-sm prose-invert max-w-none">
-          <Markdown remarkPlugins={[remarkGfm]}>{project.body}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{project.body}</Markdown>
         </div>
 
         <div className="space-y-4">

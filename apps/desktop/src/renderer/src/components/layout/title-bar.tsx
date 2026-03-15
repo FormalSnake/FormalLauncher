@@ -10,18 +10,19 @@ const titles: Record<string, string> = {
 }
 
 interface TitleBarProps {
-  title?: string
+  titleOverride?: string | null
   description?: string
   action?: ReactNode
 }
 
-export function TitleBar({ title, description, action }: TitleBarProps) {
+export function TitleBar({ titleOverride, description, action }: TitleBarProps) {
   const { pathname } = useLocation()
   const resolveTitle = () => {
-    if (title) return title
+    if (titleOverride) return titleOverride
     if (titles[pathname]) return titles[pathname]
     if (pathname.startsWith('/instances/')) return 'Instance'
-    return pathname.split('/').filter(Boolean).pop() ?? ''
+    if (pathname.startsWith('/browse/')) return 'Project'
+    return titles[pathname] ?? pathname.split('/').filter(Boolean).pop() ?? ''
   }
   const displayTitle = resolveTitle()
 
