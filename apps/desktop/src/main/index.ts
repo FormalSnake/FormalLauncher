@@ -214,6 +214,16 @@ function setupMinecraftIPC(): void {
 
   // ── Prism Launcher Import ──
 
+  async function findPrismGameDir(instanceDir: string): Promise<string> {
+    for (const candidate of ['.minecraft', 'minecraft']) {
+      try {
+        const s = await stat(join(instanceDir, candidate))
+        if (s.isDirectory()) return join(instanceDir, candidate)
+      } catch { /* try next */ }
+    }
+    return instanceDir
+  }
+
   async function scanPrismDir(dir: string) {
     const instances: {
       dirName: string
@@ -293,7 +303,7 @@ function setupMinecraftIPC(): void {
       // Count mods and resource packs
       let modCount = 0
       let resourcePackCount = 0
-      const mcDir = join(instanceDir, '.minecraft')
+      const mcDir = await findPrismGameDir(instanceDir)
       try {
         modCount = (await readdir(join(mcDir, 'mods'))).filter(
           (f) => f.endsWith('.jar') || f.endsWith('.jar.disabled'),
@@ -356,15 +366,18 @@ function setupMinecraftIPC(): void {
 
       const srcDir = join(prismDir, instanceDirName)
       const destDir = join(gameDir, 'instances', instanceId)
-      const mcDir = join(srcDir, '.minecraft')
+      const mcDir = await findPrismGameDir(srcDir)
 
       // Copy game directories
       for (const folder of ['mods', 'resourcepacks', 'config', 'saves']) {
+        const srcFolder = join(mcDir, folder)
         try {
-          await stat(join(mcDir, folder))
-          await cp(join(mcDir, folder), join(destDir, folder), { recursive: true })
-        } catch {
-          /* dir doesn't exist, skip */
+          await stat(srcFolder)
+          await cp(srcFolder, join(destDir, folder), { recursive: true })
+        } catch (err) {
+          if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+            console.error(`Failed to copy ${folder} from ${srcFolder}:`, err)
+          }
         }
       }
 
@@ -455,6 +468,13 @@ function setupMinecraftIPC(): void {
         /* no resource packs */
       }
 
+      // Read instance icon
+      let iconUrl: string | undefined
+      try {
+        const iconData = await readFile(join(mcDir, 'icon.png'))
+        iconUrl = `data:image/png;base64,${iconData.toString('base64')}`
+      } catch { /* no icon */ }
+
       return {
         id: instanceId,
         name: cfg['name'] || instanceDirName,
@@ -464,6 +484,7 @@ function setupMinecraftIPC(): void {
         effectiveVersionId,
         mods,
         resourcePacks,
+        iconUrl,
         ramMb: cfg['MaxMemAlloc'] ? parseInt(cfg['MaxMemAlloc'], 10) : undefined,
         javaPath: cfg['JavaPath'] || undefined,
         jvmArgs: cfg['JvmArgs'] || undefined,

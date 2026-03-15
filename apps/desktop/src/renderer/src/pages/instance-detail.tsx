@@ -124,6 +124,9 @@ export function InstanceDetailPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {instance.iconUrl && (
+              <img src={instance.iconUrl} alt="" className="size-8 rounded-sm" />
+            )}
             <h1 className="text-2xl font-bold tracking-tight">
               {instance.name}
             </h1>

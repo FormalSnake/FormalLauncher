@@ -59,7 +59,12 @@ export function InstanceCard({ instance }: InstanceCardProps) {
       onClick={() => navigate(`/instances/${instance.id}`)}
     >
       <CardHeader>
-        <CardTitle className="truncate">{instance.name}</CardTitle>
+        <CardTitle className="flex items-center gap-2 truncate">
+          {instance.iconUrl && (
+            <img src={instance.iconUrl} alt="" className="size-5 rounded-sm" />
+          )}
+          {instance.name}
+        </CardTitle>
         <CardAction>
           <div className="flex items-center gap-1">
             <Button

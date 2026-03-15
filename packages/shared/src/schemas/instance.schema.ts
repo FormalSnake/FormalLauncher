@@ -34,6 +34,7 @@ export const InstanceSchema = z.object({
   javaPath: z.string().optional(),
   jvmArgs: z.string().optional(),
   ramMb: z.number().int().positive().optional(),
+  iconUrl: z.string().optional(),
 })
 export type Instance = z.infer<typeof InstanceSchema>
 
