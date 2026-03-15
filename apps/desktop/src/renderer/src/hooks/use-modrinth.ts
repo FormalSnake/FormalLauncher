@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { searchProjects, getProject, getProjects, getProjectVersions, getVersion } from '@/lib/modrinth'
+import { searchProjects, getProject, getProjects, getProjectVersions, getVersion, getVersionFilesByHash } from '@/lib/modrinth'
 
 export function useModrinthSearch(params: {
   query: string
@@ -48,6 +48,15 @@ export function useModrinthProjects(ids: string[]) {
     queryKey: ['modrinth', 'projects', sortedIds],
     queryFn: () => getProjects(sortedIds),
     enabled: sortedIds.length > 0,
+  })
+}
+
+export function useModrinthHashLookup(hashes: string[]) {
+  const sorted = [...hashes].sort()
+  return useQuery({
+    queryKey: ['modrinth', 'hashLookup', sorted],
+    queryFn: () => getVersionFilesByHash(sorted),
+    enabled: sorted.length > 0,
   })
 }
 

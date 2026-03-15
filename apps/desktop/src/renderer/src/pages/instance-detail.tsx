@@ -23,7 +23,7 @@ import { useSettingsStore } from '@/store/settings.store'
 import { useVersions } from '@/hooks/use-versions'
 import { useLaunch } from '@/hooks/use-launch'
 import { useContentInstall } from '@/hooks/use-mod-install'
-import { useModrinthProjects } from '@/hooks/use-modrinth'
+import { useModrinthProjects, useModrinthHashLookup } from '@/hooks/use-modrinth'
 import {
   PlayIcon,
   PackageIcon,
@@ -69,7 +69,32 @@ export function InstanceDetailPage() {
     return [...new Set(ids)]
   }, [instance])
 
-  const { data: projects } = useModrinthProjects(missingIconIds)
+  // Split into SHA1 hashes vs direct Modrinth IDs
+  const { hashIds, directIds } = useMemo(() => {
+    const hashIds: string[] = []
+    const directIds: string[] = []
+    for (const id of missingIconIds) {
+      if (/^[a-f0-9]{40}$/.test(id)) hashIds.push(id)
+      else directIds.push(id)
+    }
+    return { hashIds, directIds }
+  }, [missingIconIds])
+
+  // Resolve hashes -> versions (contains project_id)
+  const { data: hashVersions } = useModrinthHashLookup(hashIds)
+
+  // Collect all project IDs (direct + resolved from hashes)
+  const allProjectIds = useMemo(() => {
+    const ids = [...directIds]
+    if (hashVersions) {
+      for (const v of Object.values(hashVersions)) {
+        ids.push(v.project_id)
+      }
+    }
+    return [...new Set(ids)]
+  }, [directIds, hashVersions])
+
+  const { data: projects } = useModrinthProjects(allProjectIds)
 
   const iconMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -78,8 +103,15 @@ export function InstanceDetailPage() {
         if (p.icon_url) map[p.id] = p.icon_url
       }
     }
+    // Map hashes to their resolved project's icon
+    if (hashVersions) {
+      for (const [hash, version] of Object.entries(hashVersions)) {
+        const icon = map[version.project_id]
+        if (icon) map[hash] = icon
+      }
+    }
     return map
-  }, [projects])
+  }, [projects, hashVersions])
 
   if (!instance) {
     return (

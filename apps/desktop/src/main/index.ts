@@ -14,6 +14,7 @@ import {
 import { readdir, readFile, unlink, rename, cp, stat } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
 import type { DownloadProgress, GameProcess, LaunchOptions } from '@formallauncher/minecraft'
+import { sha1File } from '@formallauncher/minecraft'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -440,8 +441,9 @@ function setupMinecraftIPC(): void {
           if (!f.endsWith('.jar') && !f.endsWith('.jar.disabled')) continue
           const enabled = !f.endsWith('.disabled')
           const displayName = f.replace(/\.jar(\.disabled)?$/, '')
+          const hash = await sha1File(join(destDir, 'mods', f))
           mods.push({
-            projectId: f,
+            projectId: hash,
             versionId: '',
             name: displayName,
             fileName: f,
@@ -457,8 +459,9 @@ function setupMinecraftIPC(): void {
       try {
         const rpFiles = await readdir(join(destDir, 'resourcepacks'))
         for (const f of rpFiles) {
+          const hash = await sha1File(join(destDir, 'resourcepacks', f))
           resourcePacks.push({
-            projectId: f,
+            projectId: hash,
             versionId: '',
             name: f.replace(/\.zip$/, ''),
             fileName: f,

@@ -155,6 +155,20 @@ export async function getVersion(versionId: string): Promise<ModrinthVersion> {
   return res.json()
 }
 
+export async function getVersionFilesByHash(
+  hashes: string[],
+  algorithm: 'sha1' | 'sha512' = 'sha1',
+): Promise<Record<string, ModrinthVersion>> {
+  if (hashes.length === 0) return {}
+  const res = await fetch(`${BASE_URL}/version_files`, {
+    method: 'POST',
+    headers: { ...HEADERS, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ hashes, algorithm }),
+  })
+  if (!res.ok) throw new Error(`Modrinth API error: ${res.status}`)
+  return res.json()
+}
+
 export async function getVersions(versionIds: string[]): Promise<ModrinthVersion[]> {
   const url = new URL(`${BASE_URL}/versions`)
   url.searchParams.set('ids', JSON.stringify(versionIds))
