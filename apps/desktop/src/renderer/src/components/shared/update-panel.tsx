@@ -2,23 +2,23 @@ import { Button } from '@/components/ui/button'
 import { useUpdateCheck } from '@/hooks/use-update-check'
 import type { UpdateInfo } from '@/hooks/use-update-check'
 import {
-  RefreshCwIcon,
-  LoaderIcon,
-  ArrowUpCircleIcon,
-  AlertTriangleIcon,
-  PackageIcon,
-  ImageIcon,
-  BoxIcon,
-} from 'lucide-react'
+  IconArrowRotateClockwise,
+  IconLoader,
+  IconCircleArrowUp,
+  IconTriangleWarning,
+  IconCube,
+  IconImage,
+  IconBox2,
+} from 'nucleo-pixel'
 
 interface UpdatePanelProps {
   instanceId: string
 }
 
 function TypeIcon({ type }: { type: UpdateInfo['type'] }) {
-  if (type === 'mod') return <PackageIcon className="size-4 text-muted-foreground" />
-  if (type === 'resourcepack') return <ImageIcon className="size-4 text-muted-foreground" />
-  return <BoxIcon className="size-4 text-muted-foreground" />
+  if (type === 'mod') return <IconCube className="size-4 text-muted-foreground" />
+  if (type === 'resourcepack') return <IconImage className="size-4 text-muted-foreground" />
+  return <IconBox2 className="size-4 text-muted-foreground" />
 }
 
 export function UpdatePanel({ instanceId }: UpdatePanelProps) {
@@ -45,7 +45,7 @@ export function UpdatePanel({ instanceId }: UpdatePanelProps) {
               onClick={updateAll}
               disabled={updating || checking}
             >
-              <ArrowUpCircleIcon className="size-4" />
+              <IconCircleArrowUp className="size-4" />
               Update All ({updates.filter((u) => u.type !== 'modpack').length})
             </Button>
           )}
@@ -57,9 +57,9 @@ export function UpdatePanel({ instanceId }: UpdatePanelProps) {
             disabled={checking || updating}
           >
             {checking ? (
-              <LoaderIcon className="size-4 animate-spin" />
+              <IconLoader className="size-4 animate-spin" />
             ) : (
-              <RefreshCwIcon className="size-4" />
+              <IconArrowRotateClockwise className="size-4" />
             )}
             {checking ? 'Checking...' : 'Check for Updates'}
           </Button>
@@ -85,7 +85,7 @@ export function UpdatePanel({ instanceId }: UpdatePanelProps) {
         <div className="mt-3 space-y-2">
           {updates.some((u) => u.type === 'modpack') && (
             <div className="flex items-center gap-2 rounded-md bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400">
-              <AlertTriangleIcon className="size-4 shrink-0" />
+              <IconTriangleWarning className="size-4 shrink-0" />
               Modpack updates will replace all mods in this instance.
             </div>
           )}

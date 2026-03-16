@@ -26,13 +26,13 @@ import { useLaunch } from '@/hooks/use-launch'
 import { useContentInstall } from '@/hooks/use-mod-install'
 import { useModrinthProjects, useModrinthHashLookup } from '@/hooks/use-modrinth'
 import {
-  PlayIcon,
-  PackageIcon,
-  LoaderIcon,
-  ShieldCheckIcon,
-  PlusIcon,
-  ImageIcon,
-} from 'lucide-react'
+  IconMediaPlay,
+  IconCube,
+  IconLoader,
+  IconShieldCheck,
+  IconPlus,
+  IconImage,
+} from 'nucleo-pixel'
 
 export function InstanceDetailPage() {
   const { id } = useParams()
@@ -199,9 +199,9 @@ export function InstanceDetailPage() {
             disabled={isBusy}
           >
             {isThisLaunching ? (
-              <LoaderIcon className="size-4 animate-spin" />
+              <IconLoader className="size-4 animate-spin" />
             ) : (
-              <PlayIcon className="size-4" />
+              <IconMediaPlay className="size-4" />
             )}
             {isThisRunning
               ? 'Running'
@@ -259,7 +259,7 @@ export function InstanceDetailPage() {
                   className="gap-2"
                   onClick={() => navigate('/browse?tab=mod')}
                 >
-                  <PlusIcon className="size-4" />
+                  <IconPlus className="size-4" />
                   Add Mods
                 </Button>
               </div>
@@ -274,7 +274,7 @@ export function InstanceDetailPage() {
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
-                  <PackageIcon className="size-6" />
+                  <IconCube className="size-6" />
                   <p className="text-sm">No mods installed</p>
                 </div>
               )}
@@ -290,7 +290,7 @@ export function InstanceDetailPage() {
                   className="gap-2"
                   onClick={() => navigate('/browse?tab=resourcepack')}
                 >
-                  <PlusIcon className="size-4" />
+                  <IconPlus className="size-4" />
                   Add Resource Packs
                 </Button>
               </div>
@@ -304,7 +304,7 @@ export function InstanceDetailPage() {
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
-                  <ImageIcon className="size-6" />
+                  <IconImage className="size-6" />
                   <p className="text-sm">No resource packs installed</p>
                 </div>
               )}
@@ -390,9 +390,9 @@ export function InstanceDetailPage() {
                 }}
               >
                 {verifying ? (
-                  <LoaderIcon className="size-4 animate-spin" />
+                  <IconLoader className="size-4 animate-spin" />
                 ) : (
-                  <ShieldCheckIcon className="size-4" />
+                  <IconShieldCheck className="size-4" />
                 )}
                 {verifying ? 'Verifying...' : 'Verify & Repair Files'}
               </Button>

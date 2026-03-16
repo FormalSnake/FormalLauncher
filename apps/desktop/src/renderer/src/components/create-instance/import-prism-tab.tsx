@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { useInstancesStore } from '@/store/instances.store'
 import { useSettingsStore } from '@/store/settings.store'
-import { LoaderIcon, FolderOpenIcon } from 'lucide-react'
+import { IconLoader, IconFolderOpen } from 'nucleo-pixel'
 
 type PrismScanResult = Awaited<ReturnType<typeof window.minecraft.scanPrismInstances>>
 type PrismInstanceInfo = PrismScanResult['instances'][number]
@@ -110,7 +110,7 @@ export function ImportPrismTab({ onCreated }: ImportPrismTabProps) {
             Scan Default Location
           </Button>
           <Button variant="outline" className="gap-2" onClick={handleBrowsePrism}>
-            <FolderOpenIcon className="size-4" />
+            <IconFolderOpen className="size-4" />
             Browse...
           </Button>
         </div>
@@ -122,7 +122,7 @@ export function ImportPrismTab({ onCreated }: ImportPrismTabProps) {
     <>
       {scanning && (
         <div className="flex items-center justify-center py-8">
-          <LoaderIcon className="size-5 animate-spin" />
+          <IconLoader className="size-5 animate-spin" />
           <span className="ml-2 text-sm text-muted-foreground">Scanning for instances...</span>
         </div>
       )}
@@ -133,7 +133,7 @@ export function ImportPrismTab({ onCreated }: ImportPrismTabProps) {
             No Prism Launcher instances found.
           </p>
           <Button variant="outline" className="gap-2" onClick={handleBrowsePrism}>
-            <FolderOpenIcon className="size-4" />
+            <IconFolderOpen className="size-4" />
             Browse...
           </Button>
         </div>
@@ -150,7 +150,7 @@ export function ImportPrismTab({ onCreated }: ImportPrismTabProps) {
               {selectedImports.size === prismInstances.length ? 'Deselect all' : 'Select all'}
             </button>
             <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={handleBrowsePrism}>
-              <FolderOpenIcon className="size-3" />
+              <IconFolderOpen className="size-3" />
               Change folder
             </Button>
           </div>
@@ -179,7 +179,7 @@ export function ImportPrismTab({ onCreated }: ImportPrismTabProps) {
 
           {importing && importStatus && (
             <div className="flex items-center gap-2 py-2">
-              <LoaderIcon className="size-4 animate-spin" />
+              <IconLoader className="size-4 animate-spin" />
               <span className="text-sm text-muted-foreground">{importStatus}</span>
             </div>
           )}
@@ -194,7 +194,7 @@ export function ImportPrismTab({ onCreated }: ImportPrismTabProps) {
             >
               {importing ? (
                 <>
-                  <LoaderIcon className="mr-2 size-4 animate-spin" />
+                  <IconLoader className="mr-2 size-4 animate-spin" />
                   Importing...
                 </>
               ) : (

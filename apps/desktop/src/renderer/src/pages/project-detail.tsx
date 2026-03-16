@@ -29,16 +29,16 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  DownloadIcon,
-  HeartIcon,
-  ExternalLinkIcon,
-  PackageIcon,
-  CalendarIcon,
-  ScaleIcon,
-  LoaderIcon,
-} from 'lucide-react'
+  IconChevronLeft,
+  IconChevronRight,
+  IconDownload,
+  IconHeart2,
+  IconExternalLink,
+  IconCube,
+  IconCalendar,
+  IconScale,
+  IconLoader,
+} from 'nucleo-pixel'
 
 function formatDownloads(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
@@ -149,7 +149,7 @@ export function ProjectDetailPage() {
           />
         ) : (
           <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted">
-            <PackageIcon className="size-8 text-muted-foreground" />
+            <IconCube className="size-8 text-muted-foreground" />
           </div>
         )}
         <div className="min-w-0 flex-1">
@@ -162,11 +162,11 @@ export function ProjectDetailPage() {
               </Badge>
             ))}
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <DownloadIcon className="size-3" />
+              <IconDownload className="size-3" />
               {formatDownloads(project.downloads)}
             </span>
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <HeartIcon className="size-3" />
+              <IconHeart2 className="size-3" />
               {formatDownloads(project.followers)}
             </span>
           </div>
@@ -208,7 +208,7 @@ export function ProjectDetailPage() {
                     className="absolute left-2 z-10 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
                     onClick={goPrev}
                   >
-                    <ChevronLeftIcon className="size-5" />
+                    <IconChevronLeft className="size-5" />
                   </button>
                 )}
                 <img
@@ -223,7 +223,7 @@ export function ProjectDetailPage() {
                       className="absolute right-2 z-10 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
                       onClick={goNext}
                     >
-                      <ChevronRightIcon className="size-5" />
+                      <IconChevronRight className="size-5" />
                     </button>
                   )}
               </div>
@@ -287,23 +287,23 @@ export function ProjectDetailPage() {
                 setModpackDialogOpen(true)
               }}
             >
-              <DownloadIcon className="mr-2 size-4" />
+              <IconDownload className="mr-2 size-4" />
               Install Modpack
             </Button>
           ) : (
             <Button className="w-full" onClick={() => setInstallOpen(true)}>
-              <DownloadIcon className="mr-2 size-4" />
+              <IconDownload className="mr-2 size-4" />
               Install
             </Button>
           )}
           <Card>
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-center gap-2">
-                <ScaleIcon className="size-4 text-muted-foreground" />
+                <IconScale className="size-4 text-muted-foreground" />
                 <span>{project.license.name || project.license.id}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CalendarIcon className="size-4 text-muted-foreground" />
+                <IconCalendar className="size-4 text-muted-foreground" />
                 <div>
                   <div>Created {formatDate(project.published)}</div>
                   <div className="text-muted-foreground">
@@ -333,7 +333,7 @@ export function ProjectDetailPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <ExternalLinkIcon className="size-3" />
+                    <IconExternalLink className="size-3" />
                     {link.label}
                   </a>
                 ))}
@@ -424,7 +424,7 @@ export function ProjectDetailPage() {
             >
               {modpackInstalling ? (
                 <>
-                  <LoaderIcon className="mr-2 size-4 animate-spin" />
+                  <IconLoader className="mr-2 size-4 animate-spin" />
                   Installing...
                 </>
               ) : (

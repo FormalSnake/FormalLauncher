@@ -16,13 +16,13 @@ import { useGameStore } from '@/store/game.store'
 import { useSettingsStore } from '@/store/settings.store'
 import { useLaunch } from '@/hooks/use-launch'
 import {
-  PlayIcon,
-  MoreVerticalIcon,
-  TrashIcon,
-  PencilIcon,
-  LoaderIcon,
-  FolderOpenIcon,
-} from 'lucide-react'
+  IconMediaPlay,
+  IconDotsVertical,
+  IconTrash,
+  IconPencil,
+  IconLoader,
+  IconFolderOpen,
+} from 'nucleo-pixel'
 
 interface InstanceCardProps {
   instance: Instance
@@ -75,9 +75,9 @@ export function InstanceCard({ instance }: InstanceCardProps) {
               disabled={isBusy}
             >
               {isThisLaunching ? (
-                <LoaderIcon className="size-4 animate-spin" />
+                <IconLoader className="size-4 animate-spin" />
               ) : (
-                <PlayIcon className="size-4" />
+                <IconMediaPlay className="size-4" />
               )}
             </Button>
             <DropdownMenu>
@@ -90,7 +90,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                   />
                 }
               >
-                <MoreVerticalIcon className="size-4" />
+                <IconDotsVertical className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
@@ -99,7 +99,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                     navigate(`/instances/${instance.id}`)
                   }}
                 >
-                  <PencilIcon className="size-4" />
+                  <IconPencil className="size-4" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -108,7 +108,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                     window.minecraft.showInFolder(`${gameDirectory}/instances/${instance.id}`)
                   }}
                 >
-                  <FolderOpenIcon className="size-4" />
+                  <IconFolderOpen className="size-4" />
                   <span className="whitespace-nowrap">Show in Folder</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -118,7 +118,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
                     handleDelete()
                   }}
                 >
-                  <TrashIcon className="size-4" />
+                  <IconTrash className="size-4" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

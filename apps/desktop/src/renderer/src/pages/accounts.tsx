@@ -15,14 +15,14 @@ import { useMinecraftAuth } from '@/hooks/use-minecraft-auth'
 import { authClient } from '@/lib/auth-client'
 import { useNavigate } from 'react-router'
 import {
-  PlusIcon,
-  UserIcon,
-  CopyIcon,
-  ExternalLinkIcon,
-  LoaderIcon,
-  TrashIcon,
-  LogOutIcon,
-} from 'lucide-react'
+  IconPlus,
+  IconUser,
+  IconCopy,
+  IconExternalLink,
+  IconLoader,
+  IconTrash,
+  IconExitDoor,
+} from 'nucleo-pixel'
 
 function McAvatar({ id, name }: { id: string; name: string }) {
   const { data: src } = useProxiedImage(
@@ -76,7 +76,7 @@ export function AccountsPage() {
                   className="text-destructive"
                   onClick={() => removeAccount(account.id)}
                 >
-                  <TrashIcon className="size-4" />
+                  <IconTrash className="size-4" />
                 </Button>
               </CardContent>
             </Card>
@@ -94,9 +94,9 @@ export function AccountsPage() {
           disabled={isLoggingIn}
         >
           {isLoggingIn ? (
-            <LoaderIcon className="size-4 animate-spin" />
+            <IconLoader className="size-4 animate-spin" />
           ) : (
-            <PlusIcon className="size-4" />
+            <IconPlus className="size-4" />
           )}
           Add Account
         </Button>
@@ -123,7 +123,7 @@ export function AccountsPage() {
                   navigator.clipboard.writeText(deviceCode?.userCode ?? '')
                 }
               >
-                <CopyIcon className="size-4" />
+                <IconCopy className="size-4" />
               </Button>
             </div>
             <Button
@@ -133,11 +133,11 @@ export function AccountsPage() {
                 window.open(deviceCode?.verificationUri, '_blank')
               }
             >
-              <ExternalLinkIcon className="size-4" />
+              <IconExternalLink className="size-4" />
               Open Microsoft Login
             </Button>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <LoaderIcon className="size-4 animate-spin" />
+              <IconLoader className="size-4 animate-spin" />
               Waiting for sign-in...
             </div>
           </div>
@@ -152,7 +152,7 @@ export function AccountsPage() {
           <CardContent className="flex items-center gap-4">
             <Avatar>
               <AvatarFallback>
-                <UserIcon className="size-4" />
+                <IconUser className="size-4" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -170,7 +170,7 @@ export function AccountsPage() {
                 navigate('/login')
               }}
             >
-              <LogOutIcon className="size-4" />
+              <IconExitDoor className="size-4" />
               Sign Out
             </Button>
           </CardContent>

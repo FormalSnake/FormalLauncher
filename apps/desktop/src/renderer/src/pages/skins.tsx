@@ -14,7 +14,7 @@ import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useSkinProfile, useUploadSkin, useSetActiveCape, useSetSkinVariant } from '@/hooks/use-skin'
 import type { MinecraftSkin, MinecraftCape } from '@/types/minecraft'
 import { useProxiedImage } from '@/hooks/use-proxied-image'
-import { LoaderIcon, SaveIcon, UploadIcon } from 'lucide-react'
+import { IconLoader, IconSavedItems, IconArrowUpFromLine } from 'nucleo-pixel'
 
 function CapeItem({
   cape,
@@ -126,7 +126,7 @@ export function SkinsPage() {
 
       {isPending && isFetching && (
         <div className="flex items-center gap-2 text-muted-foreground">
-          <LoaderIcon className="size-4 animate-spin" />
+          <IconLoader className="size-4 animate-spin" />
           Loading skin profile...
         </div>
       )}
@@ -188,9 +188,9 @@ export function SkinsPage() {
                   }}
                 >
                   {uploadSkin.isPending ? (
-                    <LoaderIcon className="size-4 animate-spin" />
+                    <IconLoader className="size-4 animate-spin" />
                   ) : (
-                    <UploadIcon className="size-4" />
+                    <IconArrowUpFromLine className="size-4" />
                   )}
                   Choose PNG File
                 </Button>
@@ -235,9 +235,9 @@ export function SkinsPage() {
                 onClick={handleSave}
               >
                 {isSaving ? (
-                  <LoaderIcon className="size-4 animate-spin" />
+                  <IconLoader className="size-4 animate-spin" />
                 ) : (
-                  <SaveIcon className="size-4" />
+                  <IconSavedItems className="size-4" />
                 )}
                 Save Changes
               </Button>

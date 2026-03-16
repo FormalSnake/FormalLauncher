@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { InstallDialog } from '@/components/shared/install-dialog'
-import { DownloadIcon, PackageIcon, Trash2Icon } from 'lucide-react'
+import { IconDownload, IconCube, IconTrash2 } from 'nucleo-pixel'
 
 function formatDownloads(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
@@ -35,7 +35,7 @@ export function ModCard(props: ModCardProps) {
       <Card size="sm">
         <CardContent className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <PackageIcon className="size-5 text-muted-foreground" />
+            <IconCube className="size-5 text-muted-foreground" />
             <span
               className={`text-sm font-medium ${!props.mod.enabled ? 'text-muted-foreground line-through' : ''}`}
             >
@@ -50,7 +50,7 @@ export function ModCard(props: ModCardProps) {
                 className="size-8 p-0 text-muted-foreground hover:text-destructive"
                 onClick={props.onRemove}
               >
-                <Trash2Icon className="size-4" />
+                <IconTrash2 className="size-4" />
               </Button>
             )}
             <Switch
@@ -90,7 +90,7 @@ function BrowseCard({
             />
           ) : (
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-              <PackageIcon className="size-5 text-muted-foreground" />
+              <IconCube className="size-5 text-muted-foreground" />
             </div>
           )}
           <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ function BrowseCard({
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <DownloadIcon className="size-3" />
+              <IconDownload className="size-3" />
               {formatDownloads(project.downloads)}
             </span>
             {type !== 'modpack' && (

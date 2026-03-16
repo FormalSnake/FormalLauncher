@@ -4,7 +4,7 @@ import type { ModEntry, ResourcePackEntry } from '@formallauncher/shared'
 import { DataTable } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { PackageIcon, ImageIcon, Trash2Icon, ArrowUpDownIcon } from 'lucide-react'
+import { IconCube, IconImage, IconTrash2, IconSortArrows } from 'nucleo-pixel'
 
 type ContentItem = ModEntry | ResourcePackEntry
 
@@ -26,7 +26,7 @@ export function ContentTable({
   onItemClick,
 }: ContentTableProps) {
   const columns = useMemo<ColumnDef<ContentItem, unknown>[]>(() => {
-    const FallbackIcon = contentType === 'mod' ? PackageIcon : ImageIcon
+    const FallbackIcon = contentType === 'mod' ? IconCube : IconImage
 
     const cols: ColumnDef<ContentItem, unknown>[] = [
       {
@@ -39,7 +39,7 @@ export function ContentTable({
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             Name
-            <ArrowUpDownIcon className="ml-2 size-3.5" />
+            <IconSortArrows className="ml-2 size-3.5" />
           </Button>
         ),
         cell: ({ row }) => {
@@ -102,7 +102,7 @@ export function ContentTable({
               onRemove(row.original)
             }}
           >
-            <Trash2Icon className="size-4" />
+            <IconTrash2 className="size-4" />
           </Button>
         </div>
       ),

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router'
 import { InstanceCard } from '@/components/shared/instance-card'
 import { Button } from '@/components/ui/button'
 import { useInstancesStore } from '@/store/instances.store'
-import { PlayIcon, PlusIcon } from 'lucide-react'
+import { IconMediaPlay, IconPlus } from 'nucleo-pixel'
 import { useLaunch } from '@/hooks/use-launch'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 
@@ -35,7 +35,7 @@ export function HomePage() {
           className="gap-2"
           onClick={() => navigate('/instances')}
         >
-          <PlusIcon className="size-4" />
+          <IconPlus className="size-4" />
           Create Instance
         </Button>
       </div>
@@ -62,7 +62,7 @@ export function HomePage() {
             onClick={handleQuickPlay}
             disabled={isLaunching || isRunning}
           >
-            <PlayIcon className="size-4" />
+            <IconMediaPlay className="size-4" />
             Play {lastInstance.name}
           </Button>
           <Button
@@ -71,7 +71,7 @@ export function HomePage() {
             className="gap-2"
             onClick={() => navigate('/instances')}
           >
-            <PlusIcon className="size-4" />
+            <IconPlus className="size-4" />
             Create Instance
           </Button>
         </div>

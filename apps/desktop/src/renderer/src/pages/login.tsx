@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LoaderIcon } from 'lucide-react'
+import { IconLoader } from 'nucleo-pixel'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -105,7 +105,7 @@ export function LoginPage() {
                   )}
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && (
-                      <LoaderIcon className="mr-2 size-4 animate-spin" />
+                      <IconLoader className="mr-2 size-4 animate-spin" />
                     )}
                     Sign In
                   </Button>
@@ -153,7 +153,7 @@ export function LoginPage() {
                   )}
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && (
-                      <LoaderIcon className="mr-2 size-4 animate-spin" />
+                      <IconLoader className="mr-2 size-4 animate-spin" />
                     )}
                     Create Account
                   </Button>

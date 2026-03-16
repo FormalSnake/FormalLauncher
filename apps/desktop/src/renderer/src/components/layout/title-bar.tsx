@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { ArrowLeftIcon } from 'lucide-react'
+import { IconArrowLeft } from 'nucleo-pixel'
 
 const titles: Record<string, string> = {
   '/': 'Home',
@@ -40,7 +40,7 @@ export function TitleBar({ titleOverride, description, action }: TitleBarProps) 
             className="no-drag -ml-1 flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeftIcon className="size-4" />
+            <IconArrowLeft className="size-4" />
           </button>
         )}
         <h1 className="text-lg font-bold tracking-tight">{displayTitle}</h1>

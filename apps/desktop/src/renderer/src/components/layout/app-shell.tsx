@@ -19,27 +19,27 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { TitleBar } from '@/components/layout/title-bar'
 import { useSync } from '@/hooks/use-sync'
 import {
-  HomeIcon,
-  BoxesIcon,
-  CompassIcon,
-  UsersIcon,
-  ShirtIcon,
-  SettingsIcon,
-  RefreshCwIcon,
-  CheckCircleIcon,
-  AlertCircleIcon,
-} from 'lucide-react'
+  IconHouse,
+  IconStackX,
+  IconCompass,
+  IconUsers2,
+  IconShirt,
+  IconGear,
+  IconArrowRotateClockwise,
+  IconCircleCheck,
+  IconCircleWarning,
+} from 'nucleo-pixel'
 
 const mainNav = [
-  { to: '/', icon: HomeIcon, label: 'Home' },
-  { to: '/instances', icon: BoxesIcon, label: 'Instances' },
-  { to: '/browse', icon: CompassIcon, label: 'Browse' },
+  { to: '/', icon: IconHouse, label: 'Home' },
+  { to: '/instances', icon: IconStackX, label: 'Instances' },
+  { to: '/browse', icon: IconCompass, label: 'Browse' },
 ]
 
 const bottomNav = [
-  { to: '/accounts', icon: UsersIcon, label: 'Accounts' },
-  { to: '/skins', icon: ShirtIcon, label: 'Skins' },
-  { to: '/settings', icon: SettingsIcon, label: 'Settings' },
+  { to: '/accounts', icon: IconUsers2, label: 'Accounts' },
+  { to: '/skins', icon: IconShirt, label: 'Skins' },
+  { to: '/settings', icon: IconGear, label: 'Settings' },
 ]
 
 export interface AppShellContext {
@@ -102,11 +102,11 @@ export function AppShell() {
                 tooltip={syncError ? `Sync error: ${syncError}` : syncing ? 'Syncing...' : 'Sync now'}
               >
                 {syncing ? (
-                  <RefreshCwIcon className="size-4 animate-spin" />
+                  <IconArrowRotateClockwise className="size-4 animate-spin" />
                 ) : syncError ? (
-                  <AlertCircleIcon className="size-4 text-destructive" />
+                  <IconCircleWarning className="size-4 text-destructive" />
                 ) : (
-                  <CheckCircleIcon className="size-4 text-green-500" />
+                  <IconCircleCheck className="size-4 text-green-500" />
                 )}
                 <span>{syncing ? 'Syncing...' : syncError ? 'Sync error' : 'Synced'}</span>
               </SidebarMenuButton>

@@ -17,7 +17,7 @@ import {
 import { useInstancesStore } from '@/store/instances.store'
 import { useModrinthVersions } from '@/hooks/use-modrinth'
 import { useContentInstall } from '@/hooks/use-mod-install'
-import { LoaderIcon, CheckIcon, AlertCircleIcon } from 'lucide-react'
+import { IconLoader, IconCheck, IconCircleWarning } from 'nucleo-pixel'
 
 interface InstallDialogProps {
   projectId: string
@@ -143,7 +143,7 @@ export function InstallDialog({
 
           {error && (
             <div className="flex items-center gap-2 text-sm text-destructive">
-              <AlertCircleIcon className="size-4" />
+              <IconCircleWarning className="size-4" />
               {error}
             </div>
           )}
@@ -156,12 +156,12 @@ export function InstallDialog({
           >
             {installing ? (
               <>
-                <LoaderIcon className="mr-2 size-4 animate-spin" />
+                <IconLoader className="mr-2 size-4 animate-spin" />
                 Installing...
               </>
             ) : success ? (
               <>
-                <CheckIcon className="mr-2 size-4" />
+                <IconCheck className="mr-2 size-4" />
                 Installed!
               </>
             ) : (

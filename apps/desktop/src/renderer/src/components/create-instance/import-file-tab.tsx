@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { useModpackInstall } from '@/hooks/use-modpack-install'
-import { FileIcon, LoaderIcon, UploadIcon } from 'lucide-react'
+import { IconFile, IconLoader, IconArrowUpFromLine } from 'nucleo-pixel'
 
 interface ImportFileTabProps {
   onCreated: () => void
@@ -63,7 +63,7 @@ export function ImportFileTab({ onCreated }: ImportFileTabProps) {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
           >
-            <UploadIcon className="size-8 text-muted-foreground" />
+            <IconArrowUpFromLine className="size-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
               Drag and drop a .mrpack file here
             </p>
@@ -74,7 +74,7 @@ export function ImportFileTab({ onCreated }: ImportFileTabProps) {
         ) : (
           <>
             <div className="flex items-center gap-3 rounded-md border p-3">
-              <FileIcon className="size-5 shrink-0 text-muted-foreground" />
+              <IconFile className="size-5 shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{fileName}</p>
               </div>
@@ -133,7 +133,7 @@ export function ImportFileTab({ onCreated }: ImportFileTabProps) {
           >
             {installing ? (
               <>
-                <LoaderIcon className="mr-2 size-4 animate-spin" />
+                <IconLoader className="mr-2 size-4 animate-spin" />
                 Installing...
               </>
             ) : (

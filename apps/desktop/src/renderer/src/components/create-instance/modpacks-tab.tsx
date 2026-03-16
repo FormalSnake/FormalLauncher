@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeftIcon, LoaderIcon, PackageIcon } from 'lucide-react'
+import { IconArrowLeft, IconLoader, IconCube } from 'nucleo-pixel'
 import type { ModrinthSearchHit } from '@/lib/modrinth'
 
 interface ModpacksTabProps {
@@ -70,7 +70,7 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
             setSelectedVersion('')
           }}
         >
-          <ArrowLeftIcon className="size-3" />
+          <IconArrowLeft className="size-3" />
           Back to search
         </button>
 
@@ -79,7 +79,7 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
             <img src={selected.icon_url} alt="" className="size-10 rounded-lg" />
           ) : (
             <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-              <PackageIcon className="size-5 text-muted-foreground" />
+              <IconCube className="size-5 text-muted-foreground" />
             </div>
           )}
           <div>
@@ -109,7 +109,7 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
             <SelectContent>
               {versionsLoading && (
                 <div className="flex items-center justify-center py-2">
-                  <LoaderIcon className="size-4 animate-spin" />
+                  <IconLoader className="size-4 animate-spin" />
                 </div>
               )}
               {versions?.map((v) => (
@@ -144,7 +144,7 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
         >
           {installing ? (
             <>
-              <LoaderIcon className="mr-2 size-4 animate-spin" />
+              <IconLoader className="mr-2 size-4 animate-spin" />
               Installing...
             </>
           ) : (
@@ -166,7 +166,7 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
       <div className="max-h-80 space-y-2 overflow-y-auto">
         {searching && (
           <div className="flex items-center justify-center py-8">
-            <LoaderIcon className="size-5 animate-spin" />
+            <IconLoader className="size-5 animate-spin" />
           </div>
         )}
 
@@ -178,7 +178,7 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
 
         {!searching && searchData?.hits.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
-            <PackageIcon className="size-6" />
+            <IconCube className="size-6" />
             <p className="text-sm">No modpacks found</p>
           </div>
         )}

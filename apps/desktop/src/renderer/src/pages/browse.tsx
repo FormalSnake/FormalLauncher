@@ -5,7 +5,7 @@ import { ModCard } from '@/components/shared/mod-card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useModrinthSearch } from '@/hooks/use-modrinth'
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { IconChevronLeft, IconChevronRight } from 'nucleo-pixel'
 
 type Category = 'mod' | 'resourcepack' | 'modpack'
 const LIMIT = 20
@@ -100,7 +100,7 @@ export function BrowsePage() {
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              <ChevronLeftIcon className="size-4" />
+              <IconChevronLeft className="size-4" />
               Previous
             </Button>
             <span className="text-sm text-muted-foreground">
@@ -113,7 +113,7 @@ export function BrowsePage() {
               onClick={() => setPage((p) => p + 1)}
             >
               Next
-              <ChevronRightIcon className="size-4" />
+              <IconChevronRight className="size-4" />
             </Button>
           </div>
         )}

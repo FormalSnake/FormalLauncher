@@ -14,7 +14,7 @@ import { DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { useInstancesStore } from '@/store/instances.store'
 import { useSettingsStore } from '@/store/settings.store'
 import { useVersions } from '@/hooks/use-versions'
-import { LoaderIcon } from 'lucide-react'
+import { IconLoader } from 'nucleo-pixel'
 
 type ModLoaderChoice = 'vanilla' | 'fabric'
 
@@ -119,7 +119,7 @@ export function CustomTab({ onCreated }: CustomTabProps) {
             <SelectContent>
               {versionsLoading && (
                 <div className="flex items-center justify-center py-2">
-                  <LoaderIcon className="size-4 animate-spin" />
+                  <IconLoader className="size-4 animate-spin" />
                 </div>
               )}
               {versions.map((v) => (
@@ -160,7 +160,7 @@ export function CustomTab({ onCreated }: CustomTabProps) {
               <SelectContent>
                 {fabricLoading && (
                   <div className="flex items-center justify-center py-2">
-                    <LoaderIcon className="size-4 animate-spin" />
+                    <IconLoader className="size-4 animate-spin" />
                   </div>
                 )}
                 {fabricVersions.map((v) => (
@@ -194,7 +194,7 @@ export function CustomTab({ onCreated }: CustomTabProps) {
         >
           {creating ? (
             <>
-              <LoaderIcon className="mr-2 size-4 animate-spin" />
+              <IconLoader className="mr-2 size-4 animate-spin" />
               Creating...
             </>
           ) : (

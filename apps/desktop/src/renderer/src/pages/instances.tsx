@@ -4,7 +4,7 @@ import { SearchBar } from '@/components/shared/search-bar'
 import { Button } from '@/components/ui/button'
 import { CreateInstanceDialog } from '@/components/create-instance/create-instance-dialog'
 import { useInstancesStore } from '@/store/instances.store'
-import { PlusIcon } from 'lucide-react'
+import { IconPlus } from 'nucleo-pixel'
 
 export function InstancesPage() {
   const { instances } = useInstancesStore()
@@ -19,7 +19,7 @@ export function InstancesPage() {
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Button className="gap-2" onClick={() => setOpen(true)}>
-          <PlusIcon className="size-4" />
+          <IconPlus className="size-4" />
           New Instance
         </Button>
         <CreateInstanceDialog open={open} onOpenChange={setOpen} />
