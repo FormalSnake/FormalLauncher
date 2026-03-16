@@ -117,7 +117,8 @@ export function useContentInstall() {
 
   const removeMod = useCallback(async (instanceId: string, mod: ModEntry) => {
     const gameDir = useSettingsStore.getState().gameDirectory
-    const fileName = mod.enabled ? mod.fileName : `${mod.fileName}.disabled`
+    const baseName = mod.fileName.replace(/\.disabled$/, '')
+    const fileName = mod.enabled ? baseName : `${baseName}.disabled`
     try {
       await window.minecraft.deleteFile(
         `${getInstanceModsPath(gameDir, instanceId)}/${fileName}`,
@@ -131,15 +132,16 @@ export function useContentInstall() {
   const toggleMod = useCallback(async (instanceId: string, mod: ModEntry) => {
     const gameDir = useSettingsStore.getState().gameDirectory
     const modsDir = getInstanceModsPath(gameDir, instanceId)
+    const baseName = mod.fileName.replace(/\.disabled$/, '')
     if (mod.enabled) {
       await window.minecraft.renameFile(
-        `${modsDir}/${mod.fileName}`,
-        `${modsDir}/${mod.fileName}.disabled`,
+        `${modsDir}/${baseName}`,
+        `${modsDir}/${baseName}.disabled`,
       )
     } else {
       await window.minecraft.renameFile(
-        `${modsDir}/${mod.fileName}.disabled`,
-        `${modsDir}/${mod.fileName}`,
+        `${modsDir}/${baseName}.disabled`,
+        `${modsDir}/${baseName}`,
       )
     }
     useInstancesStore.getState().toggleMod(instanceId, mod.projectId)

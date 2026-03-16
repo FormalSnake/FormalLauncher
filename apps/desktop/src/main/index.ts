@@ -528,7 +528,7 @@ function setupMinecraftIPC(): void {
             projectId: hash,
             versionId: '',
             name: displayName,
-            fileName: f,
+            fileName: enabled ? f : f.replace(/\.disabled$/, ''),
             enabled,
           })
         }
