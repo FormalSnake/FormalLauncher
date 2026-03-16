@@ -7,11 +7,13 @@ import { trpc } from '@/lib/trpc'
 
 export function UsernameSetupPage() {
   const navigate = useNavigate()
+  const utils = trpc.useUtils()
   const [username, setUsername] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const setupMutation = trpc.profile.setup.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.profile.get.invalidate()
       navigate('/')
     },
     onError: (err) => {
