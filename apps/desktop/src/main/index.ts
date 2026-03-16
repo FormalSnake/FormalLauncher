@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import {
@@ -588,6 +588,18 @@ function setupMinecraftIPC(): void {
 }
 
 app.whenReady().then(() => {
+  // In production, file:// sends Origin: null which the server rejects.
+  // Rewrite Origin header for server requests so CSRF checks pass.
+  if (!is.dev) {
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+      { urls: ['http://localhost:3000/*'] },
+      (details, callback) => {
+        details.requestHeaders['Origin'] = 'http://localhost:5173'
+        callback({ requestHeaders: details.requestHeaders })
+      },
+    )
+  }
+
   setupMinecraftIPC()
   createWindow()
 
