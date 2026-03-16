@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -26,13 +26,36 @@ function CapeItem({
   onSelect: () => void
 }) {
   const { data: src } = useProxiedImage(cape.url)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    if (!src || !canvasRef.current) return
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      canvas.width = 10
+      canvas.height = 16
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(img, 1, 1, 10, 16, 0, 0, 10, 16)
+    }
+    img.src = src
+  }, [src])
+
   return (
     <button
       className="flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors hover:bg-accent"
       onClick={onSelect}
     >
       {src ? (
-        <img src={src} alt={cape.alias} className="h-16 w-12 rounded object-cover" />
+        <canvas
+          ref={canvasRef}
+          className="h-16 w-12 rounded"
+          style={{ imageRendering: 'pixelated' }}
+        />
       ) : (
         <div className="flex h-16 w-12 items-center justify-center rounded bg-muted" />
       )}
@@ -58,6 +81,7 @@ export function SkinsPage() {
     activeSkin?.variant === 'SLIM' ? 'slim' : 'classic',
   )
   const [selectedCapeId, setSelectedCapeId] = useState<string | null>(activeCape?.id ?? null)
+  const [backEquipment, setBackEquipment] = useState<'cape' | 'elytra'>('cape')
 
   useEffect(() => {
     if (activeSkin) {
@@ -144,9 +168,28 @@ export function SkinsPage() {
               skinUrl={activeSkin?.url ?? `https://mc-heads.net/skin/${profile.id}`}
               capeUrl={selectedCapeUrl}
               slim={variant === 'slim'}
+              backEquipment={selectedCapeUrl ? backEquipment : undefined}
               width={300}
               height={440}
             />
+            {selectedCapeUrl && (
+              <div className="mt-2 flex gap-2 justify-center">
+                <Button
+                  size="sm"
+                  variant={backEquipment === 'cape' ? 'default' : 'outline'}
+                  onClick={() => setBackEquipment('cape')}
+                >
+                  Cape
+                </Button>
+                <Button
+                  size="sm"
+                  variant={backEquipment === 'elytra' ? 'default' : 'outline'}
+                  onClick={() => setBackEquipment('elytra')}
+                >
+                  Elytra
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 space-y-6">

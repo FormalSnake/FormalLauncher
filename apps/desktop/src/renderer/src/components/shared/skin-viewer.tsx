@@ -7,6 +7,7 @@ interface SkinViewerProps {
   skinUrl: string
   capeUrl?: string
   slim?: boolean
+  backEquipment?: 'cape' | 'elytra'
   width?: number
   height?: number
   className?: string
@@ -16,6 +17,7 @@ export function SkinViewer({
   skinUrl,
   capeUrl,
   slim = false,
+  backEquipment = 'cape',
   width = 300,
   height = 400,
   className,
@@ -42,14 +44,14 @@ export function SkinViewer({
     viewerRef.current = viewer
 
     if (proxiedCape) {
-      viewer.loadCape(proxiedCape)
+      viewer.loadCape(proxiedCape, { backEquipment })
     }
 
     return () => {
       viewer.dispose()
       viewerRef.current = null
     }
-  }, [width, height, proxiedSkin, proxiedCape, slim])
+  }, [width, height, proxiedSkin, proxiedCape, slim, backEquipment])
 
   return (
     <canvas
