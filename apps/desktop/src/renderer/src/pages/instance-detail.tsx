@@ -76,6 +76,14 @@ export function InstanceDetailPage() {
   const isOwner = instance?.id ? true : false // instance is found from own store = owner
   const instanceConflicts = conflicts.filter((c) => c.instanceId === id)
 
+  const isThisLaunching = launchingInstanceId === instance?.id
+
+  useEffect(() => {
+    if (isThisLaunching) {
+      setActiveTab('logs')
+    }
+  }, [isThisLaunching])
+
   const sharedByMeQuery = trpc.sharing.listSharedByMe.useQuery(undefined, { enabled: isOwner })
   const shareMutation = trpc.sharing.share.useMutation({
     onSuccess: () => sharedByMeQuery.refetch(),
@@ -194,15 +202,8 @@ export function InstanceDetailPage() {
     )
   }
 
-  const isThisLaunching = launchingInstanceId === instance.id
   const isThisRunning = runningInstanceId === instance.id
   const isBusy = !!launchingInstanceId || !!runningInstanceId
-
-  useEffect(() => {
-    if (isThisLaunching) {
-      setActiveTab('logs')
-    }
-  }, [isThisLaunching])
 
   const handlePlay = () => {
     if (!activeAccount) {

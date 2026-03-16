@@ -87,6 +87,7 @@ export function AppShell() {
   // Prefetch pending requests and conversations for badge counts
   const pendingQuery = trpc.friend.pendingRequests.useQuery(undefined, { enabled: !!session })
   const convsQuery = trpc.chat.listConversations.useQuery(undefined, { enabled: !!session })
+  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: !!session })
 
   useEffect(() => {
     if (pendingQuery.data) useFriendsStore.getState().setPendingRequests(pendingQuery.data)
@@ -108,8 +109,6 @@ export function AppShell() {
       </div>
     )
   }
-
-  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: !!session })
 
   if (!session) {
     return <Navigate to="/login" replace />
