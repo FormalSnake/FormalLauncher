@@ -77,3 +77,15 @@ export async function getOrCreateUserDek(db: Database, userId: string): Promise<
 
   return dek
 }
+
+export function generateConversationDek(): Buffer {
+  return randomBytes(32)
+}
+
+export function wrapConversationDek(convDek: Buffer, userDek: Buffer): string {
+  return encryptField(convDek.toString('base64'), userDek)
+}
+
+export function unwrapConversationDek(wrapped: string, userDek: Buffer): Buffer {
+  return Buffer.from(decryptField(wrapped, userDek), 'base64')
+}

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { authClient } from '@/lib/auth-client'
 import { useInstancesStore } from '@/store/instances.store'
+import { useSharedInstancesStore } from '@/store/shared-instances.store'
 import { useSettingsStore } from '@/store/settings.store'
 import { trpc } from '@/lib/trpc'
 import type { InstanceSyncData } from '@formallauncher/shared'
@@ -19,6 +20,8 @@ export function useSync() {
   const hasSyncedOnMount = useRef(false)
 
   const pushMutation = trpc.instance.push.useMutation()
+  const sharedWithMeQuery = trpc.sharing.listSharedWithMe.useQuery(undefined, { enabled: !!session })
+  const conflictsQuery = trpc.sharing.listConflicts.useQuery(undefined, { enabled: !!session })
 
   const sync = useCallback(async () => {
     if (syncing) return
@@ -80,6 +83,20 @@ export function useSync() {
       const syncedAt = result.syncedAt
       setLastSyncedAt(syncedAt)
       localStorage.setItem(LAST_SYNCED_KEY, syncedAt)
+
+      // Refresh shared instances after sync
+      try {
+        const sharedWithMe = await sharedWithMeQuery.refetch()
+        if (sharedWithMe.data) {
+          useSharedInstancesStore.getState().setSharedWithMe(sharedWithMe.data)
+        }
+        const conflicts = await conflictsQuery.refetch()
+        if (conflicts.data) {
+          useSharedInstancesStore.getState().setConflicts(conflicts.data)
+        }
+      } catch {
+        // Shared instance refresh failure is non-fatal
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {

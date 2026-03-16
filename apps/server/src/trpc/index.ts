@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events'
 import { initTRPC, TRPCError } from '@trpc/server'
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch'
 import { db } from '../db'
@@ -12,6 +13,10 @@ export async function createContext(opts: FetchCreateContextFnOptions) {
 export type Context = Awaited<ReturnType<typeof createContext>>
 
 const t = initTRPC.context<Context>().create()
+
+// Event emitter for real-time message broadcasting
+export const messageEmitter = new EventEmitter()
+messageEmitter.setMaxListeners(1000) // Support many concurrent users
 
 export const router = t.router
 export const publicProcedure = t.procedure

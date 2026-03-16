@@ -1,2 +1,5 @@
 export * from './instance.schema'
 export * from './user.schema'
+export * from './friendship.schema'
+export * from './sharing.schema'
+export * from './chat.schema'

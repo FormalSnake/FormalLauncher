@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, Navigate } from 'react-router'
 import { authClient } from '@/lib/auth-client'
 import {
@@ -31,12 +31,20 @@ import {
   IconCircleCheck,
   IconCircleWarning,
   IconUser,
+  IconUserHeart,
+  IconChatBubble,
 } from 'nucleo-pixel'
+import { Badge } from '@/components/ui/badge'
+import { useFriendsStore } from '@/store/friends.store'
+import { useChatStore } from '@/store/chat.store'
+import { trpc } from '@/lib/trpc'
 
 const mainNav = [
   { to: '/', icon: IconHouse, label: 'Home' },
   { to: '/instances', icon: IconStackX, label: 'Instances' },
   { to: '/browse', icon: IconCompass, label: 'Browse' },
+  { to: '/friends', icon: IconUserHeart, label: 'Friends', badgeKey: 'friends' as const },
+  { to: '/chat', icon: IconChatBubble, label: 'Chat', badgeKey: 'chat' as const },
 ]
 
 const bottomNav = [
@@ -71,6 +79,27 @@ export function AppShell() {
   const { data: session, isPending } = authClient.useSession()
   const [titleOverride, setTitleOverride] = useState<string | null>(null)
   const { sync, syncing, error: syncError } = useSync()
+  const pendingCount = useFriendsStore((s) => s.pendingRequests.length)
+  const unreadCount = useChatStore((s) =>
+    s.conversations.reduce((acc, c) => acc + c.unreadCount, 0),
+  )
+
+  // Prefetch pending requests and conversations for badge counts
+  const pendingQuery = trpc.friend.pendingRequests.useQuery(undefined, { enabled: !!session })
+  const convsQuery = trpc.chat.listConversations.useQuery(undefined, { enabled: !!session })
+
+  useEffect(() => {
+    if (pendingQuery.data) useFriendsStore.getState().setPendingRequests(pendingQuery.data)
+  }, [pendingQuery.data])
+
+  useEffect(() => {
+    if (convsQuery.data) useChatStore.getState().setConversations(convsQuery.data as any)
+  }, [convsQuery.data])
+
+  const badgeCounts: Record<string, number> = {
+    friends: pendingCount,
+    chat: unreadCount,
+  }
 
   if (isPending) {
     return (
@@ -80,8 +109,14 @@ export function AppShell() {
     )
   }
 
+  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: !!session })
+
   if (!session) {
     return <Navigate to="/login" replace />
+  }
+
+  if (profileQuery.isSuccess && !profileQuery.data) {
+    return <Navigate to="/username-setup" replace />
   }
 
   return (
@@ -97,21 +132,29 @@ export function AppShell() {
             <SidebarGroupLabel>Navigation</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {mainNav.map((item) => (
-                  <SidebarMenuItem key={item.to}>
-                    <NavLink to={item.to} end={item.to === '/'}>
-                      {({ isActive }) => (
-                        <SidebarMenuButton
-                          isActive={isActive}
-                          tooltip={item.label}
-                        >
-                          <item.icon className="size-4" />
-                          <span>{item.label}</span>
-                        </SidebarMenuButton>
-                      )}
-                    </NavLink>
-                  </SidebarMenuItem>
-                ))}
+                {mainNav.map((item) => {
+                  const count = 'badgeKey' in item && item.badgeKey ? badgeCounts[item.badgeKey] ?? 0 : 0
+                  return (
+                    <SidebarMenuItem key={item.to}>
+                      <NavLink to={item.to} end={item.to === '/'}>
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            tooltip={item.label}
+                          >
+                            <item.icon className="size-4" />
+                            <span>{item.label}</span>
+                            {count > 0 && (
+                              <Badge variant="destructive" className="ml-auto size-5 justify-center p-0 text-[10px]">
+                                {count}
+                              </Badge>
+                            )}
+                          </SidebarMenuButton>
+                        )}
+                      </NavLink>
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

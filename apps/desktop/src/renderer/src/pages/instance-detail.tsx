@@ -34,7 +34,13 @@ import {
   IconShieldCheck,
   IconPlus,
   IconImage,
+  IconUserPlus,
+  IconCircleWarning,
 } from 'nucleo-pixel'
+import { authClient } from '@/lib/auth-client'
+import { trpc } from '@/lib/trpc'
+import { useFriendsStore } from '@/store/friends.store'
+import { useSharedInstancesStore } from '@/store/shared-instances.store'
 
 export function InstanceDetailPage() {
   const { id } = useParams()
@@ -61,6 +67,27 @@ export function InstanceDetailPage() {
     instance?.minecraftVersion ?? '',
   )
   const [verifying, setVerifying] = useState(false)
+  const [shareDialogFriend, setShareDialogFriend] = useState<string | null>(null)
+
+  const { data: session } = authClient.useSession()
+  const { friends } = useFriendsStore()
+  const { conflicts, removeConflict } = useSharedInstancesStore()
+
+  const isOwner = instance?.id ? true : false // instance is found from own store = owner
+  const instanceConflicts = conflicts.filter((c) => c.instanceId === id)
+
+  const sharedByMeQuery = trpc.sharing.listSharedByMe.useQuery(undefined, { enabled: isOwner })
+  const shareMutation = trpc.sharing.share.useMutation({
+    onSuccess: () => sharedByMeQuery.refetch(),
+  })
+  const unshareMutation = trpc.sharing.unshare.useMutation({
+    onSuccess: () => sharedByMeQuery.refetch(),
+  })
+  const resolveConflictMutation = trpc.sharing.resolveConflict.useMutation({
+    onSuccess: (_, vars) => removeConflict(vars.conflictId),
+  })
+
+  const instanceShares = sharedByMeQuery.data?.find((s) => s.instanceId === id)
 
   // Collect project IDs missing iconUrl for batch fetch
   const missingIconIds = useMemo(() => {
@@ -257,6 +284,81 @@ export function InstanceDetailPage() {
               {downloadProgress.fileName}
             </p>
           )}
+        </div>
+      )}
+
+      {/* Conflict banner */}
+      {instanceConflicts.length > 0 && (
+        <div className="mb-4 space-y-2">
+          {instanceConflicts.map((conflict) => (
+            <div key={conflict.id} className="flex items-center justify-between rounded-md border border-yellow-500/50 bg-yellow-500/10 p-3">
+              <div className="flex items-center gap-2">
+                <IconCircleWarning className="size-4 text-yellow-500" />
+                <span className="text-sm">
+                  Conflict on <span className="font-medium">{conflict.field}</span>
+                  {conflict.instanceName && <> in {conflict.instanceName}</>}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => resolveConflictMutation.mutate({ conflictId: conflict.id, resolution: 'keep_mine' })}
+                >
+                  Keep Mine
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => resolveConflictMutation.mutate({ conflictId: conflict.id, resolution: 'use_owner' })}
+                >
+                  Use Owner's
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Sharing section */}
+      {isOwner && (
+        <div className="mb-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {instanceShares?.sharedWith.map((sw) => (
+              <Badge key={sw.userId} variant="secondary" className="gap-1">
+                {sw.username}
+                <button
+                  className="ml-1 text-xs opacity-60 hover:opacity-100"
+                  onClick={() => unshareMutation.mutate({ instanceId: instance.id, friendId: sw.userId })}
+                >
+                  x
+                </button>
+              </Badge>
+            ))}
+            <Select
+              value=""
+              onValueChange={(friendId) => {
+                if (friendId) shareMutation.mutate({ instanceId: instance.id, friendId })
+              }}
+            >
+              <SelectTrigger className="w-auto gap-2">
+                <IconUserPlus className="size-4" />
+                <span>Share</span>
+              </SelectTrigger>
+              <SelectContent>
+                {friends
+                  .filter((f) => !instanceShares?.sharedWith.some((sw) => sw.userId === f.userId))
+                  .map((f) => (
+                    <SelectItem key={f.userId} value={f.userId}>
+                      {f.username}#{f.friendCode}
+                    </SelectItem>
+                  ))}
+                {friends.length === 0 && (
+                  <div className="px-2 py-1 text-xs text-muted-foreground">Add friends first</div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       )}
 

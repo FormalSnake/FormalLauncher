@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, timestamp, boolean, index, integer, unique } from 'drizzle-orm/pg-core'
+import { pgTable, text, uuid, timestamp, boolean, index, integer, unique, primaryKey } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -120,5 +120,184 @@ export const instanceConfigs = pgTable(
   (table) => [
     index('instanceConfigs_instanceId_idx').on(table.instanceId),
     unique('instanceConfigs_instanceId_filePath_unique').on(table.instanceId, table.filePath),
+  ],
+)
+
+export const userProfiles = pgTable('user_profiles', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  username: text('username').notNull(),
+  friendCode: text('friend_code').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+}, (table) => [
+  unique('userProfiles_username_friendCode_unique').on(table.username, table.friendCode),
+])
+
+export const friendships = pgTable(
+  'friendships',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    requesterId: text('requester_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    addresseeId: text('addressee_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status').notNull().default('pending'),
+    blockedById: text('blocked_by_id').references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique('friendships_requester_addressee_unique').on(table.requesterId, table.addresseeId),
+    index('friendships_requesterId_idx').on(table.requesterId),
+    index('friendships_addresseeId_idx').on(table.addresseeId),
+    index('friendships_addresseeId_status_idx').on(table.addresseeId, table.status),
+  ],
+)
+
+export const sharedInstances = pgTable(
+  'shared_instances',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    instanceId: uuid('instance_id')
+      .notNull()
+      .references(() => instances.id, { onDelete: 'cascade' }),
+    ownerId: text('owner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    sharedWithId: text('shared_with_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique('sharedInstances_instanceId_sharedWithId_unique').on(table.instanceId, table.sharedWithId),
+    index('sharedInstances_ownerId_idx').on(table.ownerId),
+    index('sharedInstances_sharedWithId_idx').on(table.sharedWithId),
+  ],
+)
+
+export const instanceOverrides = pgTable(
+  'instance_overrides',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    instanceId: uuid('instance_id')
+      .notNull()
+      .references(() => instances.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    field: text('field').notNull(),
+    value: text('value').notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique('instanceOverrides_instanceId_userId_field_unique').on(table.instanceId, table.userId, table.field),
+    index('instanceOverrides_instanceId_userId_idx').on(table.instanceId, table.userId),
+  ],
+)
+
+export const instanceConflicts = pgTable(
+  'instance_conflicts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    instanceId: uuid('instance_id')
+      .notNull()
+      .references(() => instances.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    field: text('field').notNull(),
+    ownerValue: text('owner_value').notNull(),
+    localValue: text('local_value').notNull(),
+    resolvedAt: timestamp('resolved_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('instanceConflicts_instanceId_userId_idx').on(table.instanceId, table.userId),
+  ],
+)
+
+export const conversations = pgTable('conversations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  type: text('type').notNull(),
+  instanceId: uuid('instance_id').references(() => instances.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+})
+
+export const conversationMembers = pgTable(
+  'conversation_members',
+  {
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    encryptedConversationDek: text('encrypted_conversation_dek').notNull(),
+    joinedAt: timestamp('joined_at').defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.conversationId, table.userId] }),
+  ],
+)
+
+export const messages = pgTable(
+  'messages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    senderId: text('sender_id').references(() => users.id, { onDelete: 'set null' }),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('messages_conversationId_createdAt_idx').on(table.conversationId, table.createdAt),
+  ],
+)
+
+export const conversationReadCursors = pgTable(
+  'conversation_read_cursors',
+  {
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    lastReadMessageId: uuid('last_read_message_id').references(() => messages.id, { onDelete: 'set null' }),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.conversationId, table.userId] }),
   ],
 )
