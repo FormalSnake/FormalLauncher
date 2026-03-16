@@ -65,8 +65,6 @@ export function FriendsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold tracking-tight">Friends</h1>
-
       <Tabs defaultValue="friends">
         <TabsList>
           <TabsTrigger value="friends">

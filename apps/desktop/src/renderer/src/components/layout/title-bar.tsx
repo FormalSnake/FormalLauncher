@@ -6,7 +6,10 @@ const titles: Record<string, string> = {
   '/': 'Home',
   '/instances': 'Instances',
   '/browse': 'Browse',
+  '/friends': 'Friends',
+  '/chat': 'Chat',
   '/accounts': 'Accounts',
+  '/skins': 'Skins',
   '/settings': 'Settings',
 }
 
