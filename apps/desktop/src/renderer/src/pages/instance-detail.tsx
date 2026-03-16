@@ -113,6 +113,33 @@ export function InstanceDetailPage() {
     return map
   }, [projects, hashVersions])
 
+  // Build a map from projectId (or hash) -> slug for navigation
+  const slugMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    if (projects) {
+      for (const p of projects) {
+        map[p.id] = p.slug
+      }
+    }
+    if (hashVersions) {
+      for (const [hash, version] of Object.entries(hashVersions)) {
+        const slug = map[version.project_id]
+        if (slug) map[hash] = slug
+      }
+    }
+    return map
+  }, [projects, hashVersions])
+
+  const handleContentClick = (item: { projectId: string }) => {
+    const slug = slugMap[item.projectId]
+    if (slug) {
+      navigate(`/browse/${slug}`)
+    } else if (!/^[a-f0-9]{40}$/.test(item.projectId)) {
+      // Direct Modrinth ID without a resolved slug — use ID as fallback
+      navigate(`/browse/${item.projectId}`)
+    }
+  }
+
   if (!instance) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
@@ -240,6 +267,7 @@ export function InstanceDetailPage() {
                   iconMap={iconMap}
                   onToggle={(mod) => toggleMod(instance.id, mod)}
                   onRemove={(mod) => removeMod(instance.id, mod as any)}
+                  onItemClick={handleContentClick}
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
@@ -269,6 +297,7 @@ export function InstanceDetailPage() {
                   contentType="resourcepack"
                   iconMap={iconMap}
                   onRemove={(rp) => removeResourcePack(instance.id, rp as any)}
+                  onItemClick={handleContentClick}
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">

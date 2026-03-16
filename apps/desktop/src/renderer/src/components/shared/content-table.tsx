@@ -14,6 +14,7 @@ interface ContentTableProps {
   iconMap: Record<string, string>
   onToggle?: (item: ModEntry) => void
   onRemove: (item: ContentItem) => void
+  onItemClick?: (item: ContentItem) => void
 }
 
 export function ContentTable({
@@ -22,6 +23,7 @@ export function ContentTable({
   iconMap,
   onToggle,
   onRemove,
+  onItemClick,
 }: ContentTableProps) {
   const columns = useMemo<ColumnDef<ContentItem, unknown>[]>(() => {
     const FallbackIcon = contentType === 'mod' ? PackageIcon : ImageIcon
@@ -78,6 +80,7 @@ export function ContentTable({
             <Switch
               checked={mod.enabled}
               onCheckedChange={() => onToggle?.(mod)}
+              onClick={(e) => e.stopPropagation()}
             />
           )
         },
@@ -94,7 +97,10 @@ export function ContentTable({
             variant="ghost"
             size="sm"
             className="size-8 p-0 text-muted-foreground hover:text-destructive"
-            onClick={() => onRemove(row.original)}
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemove(row.original)
+            }}
           >
             <Trash2Icon className="size-4" />
           </Button>
@@ -106,5 +112,5 @@ export function ContentTable({
     return cols
   }, [contentType, iconMap, onToggle, onRemove])
 
-  return <DataTable columns={columns} data={items} />
+  return <DataTable columns={columns} data={items} onRowClick={onItemClick} />
 }
