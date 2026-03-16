@@ -7,5 +7,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  trustedOrigins: ['http://localhost:5173'],
+  trustedOrigins: ['http://localhost:5173', 'app://renderer'],
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: 'none',
+      secure: true,
+    },
+  },
 })

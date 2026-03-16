@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, session, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, net, protocol, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import {
@@ -42,7 +42,7 @@ function createWindow(): void {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadURL('app://renderer/index.html')
   }
 }
 
@@ -587,18 +587,29 @@ function setupMinecraftIPC(): void {
   )
 }
 
+// Register app:// as a privileged scheme before app is ready.
+// This makes Chromium treat it as a secure origin for cookies/CORS.
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'app',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
+  },
+])
+
 app.whenReady().then(() => {
-  // In production, file:// sends Origin: null which the server rejects.
-  // Rewrite Origin header for server requests so CSRF checks pass.
-  if (!is.dev) {
-    session.defaultSession.webRequest.onBeforeSendHeaders(
-      { urls: ['http://localhost:3000/*'] },
-      (details, callback) => {
-        details.requestHeaders['Origin'] = 'http://localhost:5173'
-        callback({ requestHeaders: details.requestHeaders })
-      },
-    )
-  }
+  // Serve built renderer files via app:// protocol in production
+  protocol.handle('app', (request) => {
+    const url = new URL(request.url)
+    let filePath = url.pathname
+    if (filePath === '/' || filePath === '') filePath = '/index.html'
+    const fullPath = join(__dirname, '../renderer', filePath)
+    return net.fetch(`file://${fullPath}`)
+  })
 
   setupMinecraftIPC()
   createWindow()
