@@ -62,6 +62,7 @@ export function useContentInstall() {
           fileName: file.filename,
           enabled: true,
           iconUrl,
+          versionNumber: version.version_number,
         }
         useInstancesStore.getState().addMod(instanceId, modEntry)
 
@@ -97,6 +98,7 @@ export function useContentInstall() {
                   name: depVersion.name,
                   fileName: depFile.filename,
                   enabled: true,
+                  versionNumber: depVersion.version_number,
                 })
               }
             }
@@ -184,6 +186,7 @@ export function useContentInstall() {
           name: projectName,
           fileName: file.filename,
           iconUrl,
+          versionNumber: version.version_number,
         }
         useInstancesStore.getState().addResourcePack(instanceId, entry)
       } catch (err) {

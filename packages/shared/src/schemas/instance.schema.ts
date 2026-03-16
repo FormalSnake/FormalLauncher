@@ -10,6 +10,7 @@ export const ModEntrySchema = z.object({
   fileName: z.string(),
   enabled: z.boolean(),
   iconUrl: z.string().optional(),
+  versionNumber: z.string().optional(),
 })
 export type ModEntry = z.infer<typeof ModEntrySchema>
 
@@ -19,6 +20,7 @@ export const ResourcePackEntrySchema = z.object({
   name: z.string(),
   fileName: z.string(),
   iconUrl: z.string().optional(),
+  versionNumber: z.string().optional(),
 })
 export type ResourcePackEntry = z.infer<typeof ResourcePackEntrySchema>
 

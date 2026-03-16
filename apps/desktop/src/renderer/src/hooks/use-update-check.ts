@@ -35,6 +35,7 @@ export function useUpdateCheck(instanceId: string) {
   const [updates, setUpdates] = useState<UpdateInfo[]>([])
   const [checking, setChecking] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [hasChecked, setHasChecked] = useState(false)
   const [updateProgress, setUpdateProgress] = useState<{ current: number; total: number } | null>(null)
 
   const checkForUpdates = useCallback(async () => {
@@ -145,6 +146,7 @@ export function useUpdateCheck(instanceId: string) {
       setUpdates(found)
     } finally {
       setChecking(false)
+      setHasChecked(true)
     }
   }, [instanceId])
 
@@ -184,6 +186,7 @@ export function useUpdateCheck(instanceId: string) {
           fileName: update.latestFileName,
           enabled: oldMod?.enabled ?? true,
           iconUrl: oldMod?.iconUrl,
+          versionNumber: update.latestVersionNumber,
         })
       } else if (update.type === 'resourcepack') {
         const rpDir = `${gameDir}/instances/${instanceId}/resourcepacks`
@@ -209,6 +212,7 @@ export function useUpdateCheck(instanceId: string) {
           name: update.name,
           fileName: update.latestFileName,
           iconUrl: oldRp?.iconUrl,
+          versionNumber: update.latestVersionNumber,
         })
       }
 
@@ -237,6 +241,7 @@ export function useUpdateCheck(instanceId: string) {
     checkForUpdates,
     updates,
     checking,
+    hasChecked,
     updateItem,
     updateAll,
     updating,

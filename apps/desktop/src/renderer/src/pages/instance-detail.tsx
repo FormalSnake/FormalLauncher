@@ -17,6 +17,7 @@ import { LoaderBadge } from '@/components/shared/loader-badge'
 import { GameTerminal } from '@/components/shared/game-terminal'
 import { ContentTable } from '@/components/shared/content-table'
 import { UpdatePanel } from '@/components/shared/update-panel'
+import { LinkModrinthDialog } from '@/components/shared/link-modrinth-dialog'
 import { useInstancesStore } from '@/store/instances.store'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useGameStore } from '@/store/game.store'
@@ -47,6 +48,9 @@ export function InstanceDetailPage() {
   const { removeMod, toggleMod, removeResourcePack } = useContentInstall()
 
   const [activeTab, setActiveTab] = useState('overview')
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
+  const [linkDialogItem, setLinkDialogItem] = useState<{ projectId: string; versionId: string; name: string; fileName: string; enabled?: boolean; iconUrl?: string; versionNumber?: string } | null>(null)
+  const [linkDialogType, setLinkDialogType] = useState<'mod' | 'resourcepack'>('mod')
   const [settingsRam, setSettingsRam] = useState(instance?.ramMb ?? 4096)
   const [settingsJavaPath, setSettingsJavaPath] = useState(
     instance?.javaPath ?? '',
@@ -131,11 +135,21 @@ export function InstanceDetailPage() {
     return map
   }, [projects, hashVersions])
 
-  const handleContentClick = (item: { projectId: string }) => {
+  const handleContentClick = (item: { projectId: string }, contentType?: 'mod' | 'resourcepack') => {
     const slug = slugMap[item.projectId]
     if (slug) {
       navigate(`/browse/${slug}`)
-    } else if (!/^[a-f0-9]{40}$/.test(item.projectId)) {
+    } else if (/^[a-f0-9]{40}$/.test(item.projectId)) {
+      // Unlinked mod (SHA1 hash as projectId) — open link dialog
+      const fullItem = contentType === 'resourcepack'
+        ? instance?.resourcePacks.find((r) => r.projectId === item.projectId)
+        : instance?.mods.find((m) => m.projectId === item.projectId)
+      if (fullItem) {
+        setLinkDialogItem(fullItem as any)
+        setLinkDialogType(contentType ?? 'mod')
+        setLinkDialogOpen(true)
+      }
+    } else {
       // Direct Modrinth ID without a resolved slug — use ID as fallback
       navigate(`/browse/${item.projectId}`)
     }
@@ -270,7 +284,7 @@ export function InstanceDetailPage() {
                   iconMap={iconMap}
                   onToggle={(mod) => toggleMod(instance.id, mod)}
                   onRemove={(mod) => removeMod(instance.id, mod as any)}
-                  onItemClick={handleContentClick}
+                  onItemClick={(item) => handleContentClick(item, 'mod')}
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
@@ -300,7 +314,7 @@ export function InstanceDetailPage() {
                   contentType="resourcepack"
                   iconMap={iconMap}
                   onRemove={(rp) => removeResourcePack(instance.id, rp as any)}
-                  onItemClick={handleContentClick}
+                  onItemClick={(item) => handleContentClick(item, 'resourcepack')}
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 rounded-md border border-dashed py-8 text-muted-foreground">
@@ -400,6 +414,19 @@ export function InstanceDetailPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {linkDialogItem && (
+        <LinkModrinthDialog
+          instanceId={instance.id}
+          item={linkDialogItem as any}
+          contentType={linkDialogType}
+          open={linkDialogOpen}
+          onOpenChange={(open) => {
+            setLinkDialogOpen(open)
+            if (!open) setLinkDialogItem(null)
+          }}
+        />
+      )}
     </div>
   )
 }

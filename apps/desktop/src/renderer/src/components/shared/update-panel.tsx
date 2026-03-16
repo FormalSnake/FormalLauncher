@@ -26,6 +26,7 @@ export function UpdatePanel({ instanceId }: UpdatePanelProps) {
     checkForUpdates,
     updates,
     checking,
+    hasChecked,
     updateItem,
     updateAll,
     updating,
@@ -116,7 +117,9 @@ export function UpdatePanel({ instanceId }: UpdatePanelProps) {
 
       {!checking && updates.length === 0 && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Click "Check for Updates" to scan for newer versions.
+          {hasChecked
+            ? 'Everything is up to date.'
+            : 'Click "Check for Updates" to scan for newer versions.'}
         </p>
       )}
     </div>

@@ -68,6 +68,16 @@ export function ContentTable({
           )
         },
       },
+      {
+        accessorKey: 'versionNumber',
+        header: 'Version',
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {row.original.versionNumber ?? '\u2014'}
+          </span>
+        ),
+        size: 120,
+      },
     ]
 
     if (contentType === 'mod') {
