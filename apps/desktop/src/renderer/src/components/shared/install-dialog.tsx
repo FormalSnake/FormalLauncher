@@ -44,7 +44,7 @@ export function InstallDialog({
 
   const instance = instances.find((i) => i.id === selectedInstance)
 
-  const { data: versions, isLoading: versionsLoading } = useModrinthVersions(
+  const { data: compatibleVersions, isLoading: compatibleLoading } = useModrinthVersions(
     projectId,
     instance
       ? {
@@ -54,6 +54,15 @@ export function InstallDialog({
         }
       : undefined,
   )
+
+  const { data: allVersions, isLoading: allVersionsLoading } = useModrinthVersions(
+    projectId,
+    instance ? {} : undefined,
+  )
+
+  const hasNoCompatible = !compatibleLoading && compatibleVersions?.length === 0
+  const versions = hasNoCompatible ? allVersions : compatibleVersions
+  const versionsLoading = hasNoCompatible ? allVersionsLoading : compatibleLoading
 
   const handleInstall = async () => {
     if (!selectedInstance) return
@@ -121,7 +130,7 @@ export function InstallDialog({
                 <SelectTrigger>
                   <SelectValue
                     placeholder={
-                      versionsLoading ? 'Loading...' : 'Latest compatible'
+                      versionsLoading ? 'Loading...' : hasNoCompatible ? 'Latest' : 'Latest compatible'
                     }
                   />
                 </SelectTrigger>
@@ -131,13 +140,18 @@ export function InstallDialog({
                       {v.name} ({v.version_number})
                     </SelectItem>
                   ))}
-                  {versions?.length === 0 && (
+                  {!versionsLoading && versions?.length === 0 && (
                     <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                      No compatible versions found
+                      No versions found
                     </div>
                   )}
                 </SelectContent>
               </Select>
+              {hasNoCompatible && versions && versions.length > 0 && (
+                <p className="text-sm text-destructive">
+                  No compatible versions found for this instance. These versions may not work correctly.
+                </p>
+              )}
             </div>
           )}
 

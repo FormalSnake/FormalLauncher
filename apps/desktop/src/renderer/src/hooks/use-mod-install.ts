@@ -41,11 +41,14 @@ export function useContentInstall() {
         } else {
           const loaders =
             instance.modLoader === 'vanilla' ? [] : [instance.modLoader]
-          const versions = await getProjectVersions(projectId, {
+          let versions = await getProjectVersions(projectId, {
             game_versions: [instance.minecraftVersion],
             loaders: loaders.length > 0 ? loaders : undefined,
           })
-          if (versions.length === 0) throw new Error('No compatible version found')
+          if (versions.length === 0) {
+            versions = await getProjectVersions(projectId, {})
+          }
+          if (versions.length === 0) throw new Error('No versions found')
           version = versions[0]
         }
 
@@ -169,10 +172,13 @@ export function useContentInstall() {
         if (versionId) {
           version = await getVersion(versionId)
         } else {
-          const versions = await getProjectVersions(projectId, {
+          let versions = await getProjectVersions(projectId, {
             game_versions: [instance.minecraftVersion],
           })
-          if (versions.length === 0) throw new Error('No compatible version found')
+          if (versions.length === 0) {
+            versions = await getProjectVersions(projectId, {})
+          }
+          if (versions.length === 0) throw new Error('No versions found')
           version = versions[0]
         }
 
