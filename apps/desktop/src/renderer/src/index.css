@@ -2,10 +2,18 @@
 @import 'tw-animate-css';
 @plugin '@tailwindcss/typography';
 
+@font-face {
+  font-family: 'Geist Pixel Square';
+  src: url('/fonts/GeistPixel-Square.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark, .dark *));
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.178 0 0);
@@ -42,6 +50,7 @@ body,
 }
 
 body {
+  font-family: 'Geist Pixel Square', monospace;
   background-color: var(--background);
   color: var(--foreground);
   overflow: hidden;
