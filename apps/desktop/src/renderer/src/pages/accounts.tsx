@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { McAvatar } from '@/components/shared/mc-avatar'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useMinecraftAuth } from '@/hooks/use-minecraft-auth'
 import { authClient } from '@/lib/auth-client'
@@ -22,16 +23,26 @@ import {
   IconLoader,
   IconTrash,
   IconExitDoor,
+  IconCheck,
+  IconImage,
 } from 'nucleo-pixel'
 
-function McAvatar({ id, name }: { id: string; name: string }) {
-  const { data: src } = useProxiedImage(
-    `https://mc-heads.net/avatar/${id}/64`,
-  )
+function ProfileAvatar({
+  image,
+  name,
+  size,
+}: {
+  image?: string | null
+  name?: string | null
+  size?: 'default' | 'sm' | 'lg'
+}) {
+  const { data: src } = useProxiedImage(image ?? undefined)
   return (
-    <Avatar>
-      {src && <AvatarImage src={src} alt={name} />}
-      <AvatarFallback>{name[0]}</AvatarFallback>
+    <Avatar size={size}>
+      {src && <AvatarImage src={src} alt={name ?? 'Profile'} />}
+      <AvatarFallback>
+        <IconUser className="size-4" />
+      </AvatarFallback>
     </Avatar>
   )
 }
@@ -68,6 +79,26 @@ export function AccountsPage() {
                     onClick={() => setActiveAccount(account.id)}
                   >
                     Set Active
+                  </Button>
+                )}
+                {session?.user.image?.includes(account.id) ? (
+                  <Badge variant="outline" className="gap-1">
+                    <IconCheck className="size-3" />
+                    Profile Pic
+                  </Badge>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="gap-1"
+                    onClick={() =>
+                      authClient.updateUser({
+                        image: `https://mc-heads.net/avatar/${account.id}/64`,
+                      })
+                    }
+                  >
+                    <IconImage className="size-4" />
+                    Set as Profile Picture
                   </Button>
                 )}
                 <Button
@@ -150,11 +181,7 @@ export function AccountsPage() {
         <h2 className="mb-4 text-lg font-semibold">App Account</h2>
         <Card size="sm">
           <CardContent className="flex items-center gap-4">
-            <Avatar>
-              <AvatarFallback>
-                <IconUser className="size-4" />
-              </AvatarFallback>
-            </Avatar>
+            <ProfileAvatar image={session?.user.image} name={session?.user.name} />
             <div className="flex-1">
               <p className="text-sm font-medium">{session?.user.name}</p>
               <p className="text-xs text-muted-foreground">

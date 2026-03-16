@@ -18,6 +18,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TitleBar } from '@/components/layout/title-bar'
 import { useSync } from '@/hooks/use-sync'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useProxiedImage } from '@/hooks/use-proxied-image'
 import {
   IconHouse,
   IconStackX,
@@ -28,6 +30,7 @@ import {
   IconArrowRotateClockwise,
   IconCircleCheck,
   IconCircleWarning,
+  IconUser,
 } from 'nucleo-pixel'
 
 const mainNav = [
@@ -41,6 +44,24 @@ const bottomNav = [
   { to: '/skins', icon: IconShirt, label: 'Skins' },
   { to: '/settings', icon: IconGear, label: 'Settings' },
 ]
+
+function SidebarProfileAvatar({
+  image,
+  name,
+}: {
+  image?: string | null
+  name?: string | null
+}) {
+  const { data: src } = useProxiedImage(image ?? undefined)
+  return (
+    <Avatar size="sm">
+      {src && <AvatarImage src={src} alt={name ?? 'Profile'} />}
+      <AvatarFallback>
+        <IconUser className="size-3" />
+      </AvatarFallback>
+    </Avatar>
+  )
+}
 
 export interface AppShellContext {
   setTitleOverride: (title: string | null) => void
@@ -97,6 +118,16 @@ export function AppShell() {
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <NavLink to="/accounts">
+                {({ isActive }) => (
+                  <SidebarMenuButton isActive={isActive} tooltip={session.user.name ?? 'Profile'}>
+                    <SidebarProfileAvatar image={session.user.image} name={session.user.name} />
+                    <span>{session.user.name}</span>
+                  </SidebarMenuButton>
+                )}
+              </NavLink>
+            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => sync()}
