@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SearchBar } from '@/components/shared/search-bar'
+import { Pagination } from '@/components/shared/pagination'
 import { ModCard } from '@/components/shared/mod-card'
 import { useModrinthSearch, useModrinthVersions } from '@/hooks/use-modrinth'
 import { useModpackInstall } from '@/hooks/use-modpack-install'
@@ -22,15 +23,24 @@ interface ModpacksTabProps {
 
 export function ModpacksTab({ onCreated }: ModpacksTabProps) {
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<ModrinthSearchHit | null>(null)
   const [name, setName] = useState('')
   const [selectedVersion, setSelectedVersion] = useState('')
   const { installModpack, installing, progress, error } = useModpackInstall()
 
+  useEffect(() => {
+    setPage(1)
+  }, [search])
+
+  const LIMIT = 20
+  const offset = (page - 1) * LIMIT
+
   const { data: searchData, isLoading: searching } = useModrinthSearch({
     query: search,
     projectType: 'modpack',
-    limit: 20,
+    limit: LIMIT,
+    offset,
   })
 
   const { data: versions, isLoading: versionsLoading } = useModrinthVersions(
@@ -183,6 +193,12 @@ export function ModpacksTab({ onCreated }: ModpacksTabProps) {
           </div>
         )}
       </div>
+
+      <Pagination
+        page={page}
+        totalPages={searchData ? Math.ceil(searchData.total_hits / LIMIT) : 0}
+        onPageChange={setPage}
+      />
     </div>
   )
 }

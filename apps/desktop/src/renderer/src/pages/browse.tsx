@@ -2,10 +2,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams } from 'react-router'
 import { SearchBar } from '@/components/shared/search-bar'
 import { ModCard } from '@/components/shared/mod-card'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Pagination } from '@/components/shared/pagination'
 import { useModrinthSearch } from '@/hooks/use-modrinth'
-import { IconChevronLeft, IconChevronRight } from 'nucleo-pixel'
 
 type Category = 'mod' | 'resourcepack' | 'modpack'
 const LIMIT = 20
@@ -92,31 +91,7 @@ export function BrowsePage() {
           )}
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              <IconChevronLeft className="size-4" />
-              Previous
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              Page {page} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-              <IconChevronRight className="size-4" />
-            </Button>
-          </div>
-        )}
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </TabsContent>
     </Tabs>
   )
