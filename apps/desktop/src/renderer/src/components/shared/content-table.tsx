@@ -87,11 +87,12 @@ export function ContentTable({
         cell: ({ row }) => {
           const mod = row.original as ModEntry
           return (
-            <Switch
-              checked={mod.enabled}
-              onCheckedChange={() => onToggle?.(mod)}
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div onClick={(e) => e.stopPropagation()} role="presentation">
+              <Switch
+                checked={mod.enabled}
+                onCheckedChange={() => onToggle?.(mod)}
+              />
+            </div>
           )
         },
         size: 80,
