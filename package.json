@@ -5,6 +5,7 @@
   "scripts": {
     "dev:server": "bun run --filter @formallauncher/server dev",
     "dev:desktop": "bun run --filter @formallauncher/desktop dev",
-    "typecheck": "bun run --filter '*' typecheck"
+    "typecheck": "bun run --filter '*' typecheck",
+    "build:desktop": "bun run --filter @formallauncher/desktop build"
   }
 }
