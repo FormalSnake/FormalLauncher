@@ -128,32 +128,20 @@ export interface ModpackManifest {
   extractedPath: string
 }
 
-export async function installModpack(
-  gameDir: string,
+async function _parseExtractedModpack(
   instanceId: string,
-  modpackFileUrl: string,
+  zipPath: string,
 ): Promise<ModpackManifest> {
   const { default: AdmZip } = await import('adm-zip')
 
-  // Download .mrpack to temp
-  const tmpPath = join(tmpdir(), `modpack-${instanceId}.mrpack`)
-  const response = await fetch(modpackFileUrl)
-  if (!response.ok) throw new Error(`Failed to download modpack: ${response.status}`)
-  if (!response.body) throw new Error('No response body for modpack download')
-  const nodeStream = Readable.fromWeb(response.body as import('node:stream/web').ReadableStream)
-  await pipeline(nodeStream, createWriteStream(tmpPath))
-
-  // Extract
   const extractedPath = join(tmpdir(), `modpack-${instanceId}-extracted`)
-  const zip = new AdmZip(tmpPath)
+  const zip = new AdmZip(zipPath)
   zip.extractAllTo(extractedPath, true)
 
-  // Parse modrinth.index.json
   const indexEntry = zip.getEntry('modrinth.index.json')
   if (!indexEntry) throw new Error('Invalid mrpack: missing modrinth.index.json')
   const index: MrpackIndex = JSON.parse(indexEntry.getData().toString('utf8'))
 
-  // Check for overrides directory
   const overridesDir = zip.getEntry('overrides/') ? join(extractedPath, 'overrides') : null
 
   return {
@@ -170,6 +158,30 @@ export async function installModpack(
     overridesDir,
     extractedPath,
   }
+}
+
+export async function installModpack(
+  gameDir: string,
+  instanceId: string,
+  modpackFileUrl: string,
+): Promise<ModpackManifest> {
+  // Download .mrpack to temp
+  const tmpPath = join(tmpdir(), `modpack-${instanceId}.mrpack`)
+  const response = await fetch(modpackFileUrl)
+  if (!response.ok) throw new Error(`Failed to download modpack: ${response.status}`)
+  if (!response.body) throw new Error('No response body for modpack download')
+  const nodeStream = Readable.fromWeb(response.body as import('node:stream/web').ReadableStream)
+  await pipeline(nodeStream, createWriteStream(tmpPath))
+
+  return _parseExtractedModpack(instanceId, tmpPath)
+}
+
+export async function installModpackFromFile(
+  gameDir: string,
+  instanceId: string,
+  filePath: string,
+): Promise<ModpackManifest> {
+  return _parseExtractedModpack(instanceId, filePath)
 }
 
 export async function applyModpackOverrides(

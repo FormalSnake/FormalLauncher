@@ -39,6 +39,10 @@ const minecraftAPI = {
   // Modpack
   installModpack: (gameDir: string, instanceId: string, modpackFileUrl: string) =>
     ipcRenderer.invoke('minecraft:install-modpack', gameDir, instanceId, modpackFileUrl),
+  installModpackFromFile: (gameDir: string, instanceId: string, filePath: string) =>
+    ipcRenderer.invoke('minecraft:install-modpack-from-file', gameDir, instanceId, filePath),
+  selectMrpackFile: () =>
+    ipcRenderer.invoke('minecraft:select-mrpack-file') as Promise<string | null>,
   applyModpackOverrides: (extractedPath: string, instanceDir: string) =>
     ipcRenderer.invoke('minecraft:apply-modpack-overrides', extractedPath, instanceDir),
 

@@ -69,6 +69,12 @@ interface MinecraftAPI {
     instanceId: string,
     modpackFileUrl: string,
   ): Promise<ModpackManifest>
+  installModpackFromFile(
+    gameDir: string,
+    instanceId: string,
+    filePath: string,
+  ): Promise<ModpackManifest>
+  selectMrpackFile(): Promise<string | null>
   applyModpackOverrides(extractedPath: string, instanceDir: string): Promise<void>
 
   // Show in folder

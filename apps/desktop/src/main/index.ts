@@ -155,6 +155,24 @@ function setupMinecraftIPC(): void {
   )
 
   ipcMain.handle(
+    'minecraft:install-modpack-from-file',
+    async (_event, gameDir: string, instanceId: string, filePath: string) => {
+      const { installModpackFromFile } = await import('@formallauncher/minecraft/fabric')
+      return installModpackFromFile(gameDir, instanceId, filePath)
+    },
+  )
+
+  ipcMain.handle('minecraft:select-mrpack-file', async () => {
+    const result = await dialog.showOpenDialog({
+      title: 'Select .mrpack File',
+      filters: [{ name: 'Modrinth Modpacks', extensions: ['mrpack'] }],
+      properties: ['openFile'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
+  })
+
+  ipcMain.handle(
     'minecraft:apply-modpack-overrides',
     async (_event, extractedPath: string, instanceDir: string) => {
       const { applyModpackOverrides } = await import('@formallauncher/minecraft/fabric')

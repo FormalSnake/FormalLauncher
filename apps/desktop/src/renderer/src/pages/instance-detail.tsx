@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LoaderBadge } from '@/components/shared/loader-badge'
 import { GameTerminal } from '@/components/shared/game-terminal'
 import { ContentTable } from '@/components/shared/content-table'
+import { UpdatePanel } from '@/components/shared/update-panel'
 import { useInstancesStore } from '@/store/instances.store'
 import { useMinecraftAccountsStore } from '@/store/minecraft-accounts.store'
 import { useGameStore } from '@/store/game.store'
@@ -246,6 +247,8 @@ export function InstanceDetailPage() {
 
         <TabsContent value="overview" className="mt-4">
           <div className="space-y-6">
+            <UpdatePanel instanceId={instance.id} />
+
             {/* Mods Section */}
             <div>
               <div className="mb-3 flex items-center justify-between">
