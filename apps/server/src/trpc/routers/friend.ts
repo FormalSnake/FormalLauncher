@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { router, protectedProcedure } from '../'
+import { router, protectedProcedure, friendEmitter } from '../'
 import {
   userProfiles,
   friendships,
@@ -88,6 +88,8 @@ export const friendRouter = router({
         })
         .returning()
 
+      friendEmitter.emit(`friend:${input.addresseeId}`, { type: 'request_received' })
+
       return friendship
     }),
 
@@ -144,6 +146,8 @@ export const friendRouter = router({
           encryptedConversationDek: wrappedForAddressee,
         },
       ])
+
+      friendEmitter.emit(`friend:${friendship.requesterId}`, { type: 'request_accepted' })
 
       // Return in Friend shape for the frontend
       const [requesterProfile] = await ctx.db
@@ -228,6 +232,8 @@ export const friendRouter = router({
       }
 
       await ctx.db.delete(friendships).where(eq(friendships.id, input.friendshipId))
+
+      friendEmitter.emit(`friend:${otherId}`, { type: 'friend_removed' })
 
       return { success: true }
     }),
@@ -337,6 +343,38 @@ export const friendRouter = router({
         friendCode: profile?.friendCode ?? '',
       }
     })
+  }),
+
+  onFriendEvent: protectedProcedure.subscription(async function* ({ ctx, signal }) {
+    const userId = ctx.session.user.id
+    const queue: any[] = []
+    let resolve: (() => void) | null = null
+
+    const onEvent = (data: any) => {
+      queue.push(data)
+      resolve?.()
+    }
+
+    friendEmitter.on(`friend:${userId}`, onEvent)
+
+    const cleanup = () => {
+      friendEmitter.off(`friend:${userId}`, onEvent)
+    }
+
+    signal?.addEventListener('abort', cleanup)
+
+    try {
+      while (true) {
+        if (queue.length === 0) {
+          await new Promise<void>((r) => { resolve = r })
+        }
+        while (queue.length > 0) {
+          yield queue.shift()
+        }
+      }
+    } finally {
+      cleanup()
+    }
   }),
 
   pendingRequests: protectedProcedure.query(async ({ ctx }) => {

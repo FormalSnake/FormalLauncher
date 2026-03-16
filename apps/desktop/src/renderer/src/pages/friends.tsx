@@ -22,6 +22,14 @@ export function FriendsPage() {
     if (pendingQuery.data) setPendingRequests(pendingQuery.data)
   }, [pendingQuery.data, setPendingRequests])
 
+  // Subscribe to real-time friend events
+  trpc.friend.onFriendEvent.useSubscription(undefined, {
+    onData: () => {
+      friendsQuery.refetch()
+      pendingQuery.refetch()
+    },
+  })
+
   const [activeSearch, setActiveSearch] = useState<string | null>(null)
   const searchQuery2 = trpc.friend.search.useQuery(
     { query: activeSearch! },

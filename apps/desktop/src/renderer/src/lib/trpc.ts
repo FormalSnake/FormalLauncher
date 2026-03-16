@@ -9,6 +9,9 @@ export const trpcClient = trpc.createClient({
       condition: (op) => op.type === 'subscription',
       true: unstable_httpSubscriptionLink({
         url: 'http://localhost:3000/trpc',
+        eventSourceOptions: () => ({
+          withCredentials: true,
+        }),
       }),
       false: httpBatchLink({
         url: 'http://localhost:3000/trpc',

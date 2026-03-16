@@ -14,9 +14,12 @@ export type Context = Awaited<ReturnType<typeof createContext>>
 
 const t = initTRPC.context<Context>().create()
 
-// Event emitter for real-time message broadcasting
+// Event emitters for real-time broadcasting
 export const messageEmitter = new EventEmitter()
-messageEmitter.setMaxListeners(1000) // Support many concurrent users
+messageEmitter.setMaxListeners(1000)
+
+export const friendEmitter = new EventEmitter()
+friendEmitter.setMaxListeners(1000)
 
 export const router = t.router
 export const publicProcedure = t.procedure

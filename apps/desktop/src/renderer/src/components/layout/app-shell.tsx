@@ -97,6 +97,22 @@ export function AppShell() {
     if (convsQuery.data) useChatStore.getState().setConversations(convsQuery.data as any)
   }, [convsQuery.data])
 
+  // Real-time friend events for badge updates
+  trpc.friend.onFriendEvent.useSubscription(undefined, {
+    enabled: !!session,
+    onData: () => {
+      pendingQuery.refetch()
+    },
+  })
+
+  // Real-time message events for chat badge updates
+  trpc.chat.onNewMessage.useSubscription(undefined, {
+    enabled: !!session,
+    onData: () => {
+      convsQuery.refetch()
+    },
+  })
+
   const badgeCounts: Record<string, number> = {
     friends: pendingCount,
     chat: unreadCount,
