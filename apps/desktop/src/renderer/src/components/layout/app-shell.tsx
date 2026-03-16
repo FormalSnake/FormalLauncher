@@ -78,15 +78,17 @@ export function AppShell() {
               <SidebarMenu>
                 {mainNav.map((item) => (
                   <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton
-                      render={
-                        <NavLink to={item.to} end={item.to === '/'} />
-                      }
-                      tooltip={item.label}
-                    >
-                      <item.icon className="size-4" />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
+                    <NavLink to={item.to} end={item.to === '/'}>
+                      {({ isActive }) => (
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          tooltip={item.label}
+                        >
+                          <item.icon className="size-4" />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      )}
+                    </NavLink>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
@@ -113,13 +115,17 @@ export function AppShell() {
             </SidebarMenuItem>
             {bottomNav.map((item) => (
               <SidebarMenuItem key={item.to}>
-                <SidebarMenuButton
-                  render={<NavLink to={item.to} />}
-                  tooltip={item.label}
-                >
-                  <item.icon className="size-4" />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
+                <NavLink to={item.to}>
+                  {({ isActive }) => (
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      tooltip={item.label}
+                    >
+                      <item.icon className="size-4" />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  )}
+                </NavLink>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
