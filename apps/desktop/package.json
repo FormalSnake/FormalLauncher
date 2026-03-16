@@ -24,6 +24,7 @@
     "clsx": "^2.1.1",
     "ghostty-web": "^0.4.0",
     "lucide-react": "^0.577.0",
+    "nucleo-pixel": "^1.0.0",
     "react-markdown": "^10.1.0",
     "react-router": "^7.13.1",
     "rehype-raw": "^7.0.0",
