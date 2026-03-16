@@ -59,6 +59,17 @@ const minecraftAPI = {
   setActiveCape: (accessToken: string, capeId: string | null) =>
     ipcRenderer.invoke('minecraft:set-active-cape', accessToken, capeId),
 
+  // Config file sync
+  readInstanceConfigs: (gameDir: string, instanceId: string) =>
+    ipcRenderer.invoke('minecraft:read-instance-configs', gameDir, instanceId) as Promise<
+      { filePath: string; content: string; hash: string }[]
+    >,
+  writeInstanceConfigs: (
+    gameDir: string,
+    instanceId: string,
+    configs: { filePath: string; content: string; hash: string }[],
+  ) => ipcRenderer.invoke('minecraft:write-instance-configs', gameDir, instanceId, configs),
+
   // Prism Launcher import
   scanPrismInstances: (dir?: string) =>
     ipcRenderer.invoke('minecraft:scan-prism-instances', dir),

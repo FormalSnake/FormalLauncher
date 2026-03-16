@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, jsonb, timestamp, boolean, index } from 'drizzle-orm/pg-core'
+import { pgTable, text, uuid, timestamp, boolean, index, integer, unique } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -6,6 +6,7 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   image: text('image'),
+  encryptedDek: text('encrypted_dek'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
@@ -72,17 +73,52 @@ export const verifications = pgTable(
   (table) => [index('verifications_identifier_idx').on(table.identifier)],
 )
 
-export const instances = pgTable('instances', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: text('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  minecraftVersion: text('minecraft_version').notNull(),
-  modLoader: text('mod_loader').notNull(),
-  mods: jsonb('mods').$type<unknown[]>().default([]),
-  jvmArgs: text('jvm_args'),
-  ramMb: text('ram_mb'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-})
+export const instances = pgTable(
+  'instances',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    minecraftVersion: text('minecraft_version').notNull(),
+    modLoader: text('mod_loader').notNull(),
+    modLoaderVersion: text('mod_loader_version'),
+    effectiveVersionId: text('effective_version_id'),
+    mods: text('mods'),
+    resourcePacks: text('resource_packs'),
+    jvmArgs: text('jvm_args'),
+    javaPath: text('java_path'),
+    ramMb: integer('ram_mb'),
+    iconUrl: text('icon_url'),
+    modpackProjectId: text('modpack_project_id'),
+    modpackVersionId: text('modpack_version_id'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index('instances_userId_idx').on(table.userId)],
+)
+
+export const instanceConfigs = pgTable(
+  'instance_configs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    instanceId: uuid('instance_id')
+      .notNull()
+      .references(() => instances.id, { onDelete: 'cascade' }),
+    filePath: text('file_path').notNull(),
+    content: text('content').notNull(),
+    hash: text('hash').notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('instanceConfigs_instanceId_idx').on(table.instanceId),
+    unique('instanceConfigs_instanceId_filePath_unique').on(table.instanceId, table.filePath),
+  ],
+)

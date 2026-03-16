@@ -83,6 +83,17 @@ interface MinecraftAPI {
   setSkinVariant(accessToken: string, skinUrl: string, variant: 'classic' | 'slim'): Promise<void>
   setActiveCape(accessToken: string, capeId: string | null): Promise<void>
 
+  // Config file sync
+  readInstanceConfigs(
+    gameDir: string,
+    instanceId: string,
+  ): Promise<{ filePath: string; content: string; hash: string }[]>
+  writeInstanceConfigs(
+    gameDir: string,
+    instanceId: string,
+    configs: { filePath: string; content: string; hash: string }[],
+  ): Promise<void>
+
   // Prism Launcher import
   scanPrismInstances(dir?: string): Promise<PrismScanResult>
   selectPrismDirectory(): Promise<PrismScanResult>

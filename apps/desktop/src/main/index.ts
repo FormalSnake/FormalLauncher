@@ -11,7 +11,8 @@ import {
   ensureInstanceDirs,
   downloadFile,
 } from '@formallauncher/minecraft'
-import { readdir, readFile, unlink, rename, cp, stat } from 'node:fs/promises'
+import { readdir, readFile, writeFile, mkdir, unlink, rename, cp, stat } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { homedir, platform } from 'node:os'
 import type { DownloadProgress, GameProcess, LaunchOptions } from '@formallauncher/minecraft'
 import { sha1File } from '@formallauncher/minecraft'
@@ -210,6 +211,79 @@ function setupMinecraftIPC(): void {
     async (_event, accessToken: string, capeId: string | null) => {
       const { setActiveCape } = await import('@formallauncher/minecraft/skin')
       return setActiveCape(accessToken, capeId)
+    },
+  )
+
+  // ── Config File Sync ──
+
+  const ALLOWED_CONFIG_EXTENSIONS = [
+    '.json', '.toml', '.cfg', '.properties', '.yaml', '.yml', '.txt', '.conf', '.ini',
+  ]
+  const MAX_CONFIG_FILE_SIZE = 256 * 1024
+
+  async function readConfigFiles(
+    dir: string,
+    basePath = '',
+  ): Promise<{ filePath: string; content: string; hash: string }[]> {
+    const results: { filePath: string; content: string; hash: string }[] = []
+    let entries: string[]
+    try {
+      entries = await readdir(dir)
+    } catch {
+      return results
+    }
+    for (const entry of entries) {
+      const fullPath = join(dir, entry)
+      const relativePath = basePath ? `${basePath}/${entry}` : entry
+      try {
+        const s = await stat(fullPath)
+        if (s.isDirectory()) {
+          results.push(...(await readConfigFiles(fullPath, relativePath)))
+        } else if (s.isFile()) {
+          const ext = entry.slice(entry.lastIndexOf('.'))
+          if (!ALLOWED_CONFIG_EXTENSIONS.includes(ext)) continue
+          if (s.size > MAX_CONFIG_FILE_SIZE) continue
+          const content = await readFile(fullPath, 'utf-8')
+          const hash = createHash('sha256').update(content).digest('hex')
+          results.push({ filePath: relativePath, content, hash })
+        }
+      } catch {
+        continue
+      }
+    }
+    return results
+  }
+
+  ipcMain.handle(
+    'minecraft:read-instance-configs',
+    async (_event, gameDir: string, instanceId: string) => {
+      const configDir = join(gameDir, 'instances', instanceId, 'config')
+      return readConfigFiles(configDir)
+    },
+  )
+
+  ipcMain.handle(
+    'minecraft:write-instance-configs',
+    async (
+      _event,
+      gameDir: string,
+      instanceId: string,
+      configs: { filePath: string; content: string; hash: string }[],
+    ) => {
+      const configDir = join(gameDir, 'instances', instanceId, 'config')
+      for (const config of configs) {
+        const destPath = join(configDir, config.filePath)
+        // Check if local file already matches
+        try {
+          const existing = await readFile(destPath, 'utf-8')
+          const existingHash = createHash('sha256').update(existing).digest('hex')
+          if (existingHash === config.hash) continue
+        } catch {
+          // File doesn't exist, will create
+        }
+        await mkdir(join(destPath, '..'), { recursive: true })
+        await writeFile(destPath, config.content, 'utf-8')
+      }
     },
   )
 

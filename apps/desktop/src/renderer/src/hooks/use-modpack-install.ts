@@ -12,7 +12,7 @@ export function useModpackInstall() {
     async (
       modpackFileUrl: string,
       instanceName: string,
-      versionId?: string,
+      options?: { modpackProjectId?: string; modpackVersionId?: string },
     ): Promise<string | null> => {
       setInstalling(true)
       setError(null)
@@ -103,6 +103,8 @@ export function useModpackInstall() {
           mods,
           resourcePacks: [],
           ramMb: 4096,
+          modpackProjectId: options?.modpackProjectId,
+          modpackVersionId: options?.modpackVersionId,
         })
 
         setProgress(null)

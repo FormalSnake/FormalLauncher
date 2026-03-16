@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sidebar'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TitleBar } from '@/components/layout/title-bar'
+import { useSync } from '@/hooks/use-sync'
 import {
   HomeIcon,
   BoxesIcon,
@@ -24,6 +25,9 @@ import {
   UsersIcon,
   ShirtIcon,
   SettingsIcon,
+  RefreshCwIcon,
+  CheckCircleIcon,
+  AlertCircleIcon,
 } from 'lucide-react'
 
 const mainNav = [
@@ -45,6 +49,7 @@ export interface AppShellContext {
 export function AppShell() {
   const { data: session, isPending } = authClient.useSession()
   const [titleOverride, setTitleOverride] = useState<string | null>(null)
+  const { sync, syncing, error: syncError } = useSync()
 
   if (isPending) {
     return (
@@ -90,6 +95,22 @@ export function AppShell() {
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => sync()}
+                disabled={syncing}
+                tooltip={syncError ? `Sync error: ${syncError}` : syncing ? 'Syncing...' : 'Sync now'}
+              >
+                {syncing ? (
+                  <RefreshCwIcon className="size-4 animate-spin" />
+                ) : syncError ? (
+                  <AlertCircleIcon className="size-4 text-destructive" />
+                ) : (
+                  <CheckCircleIcon className="size-4 text-green-500" />
+                )}
+                <span>{syncing ? 'Syncing...' : syncError ? 'Sync error' : 'Synced'}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             {bottomNav.map((item) => (
               <SidebarMenuItem key={item.to}>
                 <SidebarMenuButton

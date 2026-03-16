@@ -411,6 +411,10 @@ export function ProjectDetailPage() {
                 const instanceId = await installModpack(
                   file.url,
                   modpackName.trim(),
+                  {
+                    modpackProjectId: project?.id,
+                    modpackVersionId: selectedVer.id,
+                  },
                 )
                 if (instanceId) {
                   setModpackDialogOpen(false)

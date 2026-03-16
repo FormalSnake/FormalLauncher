@@ -59,6 +59,7 @@ bun run db:studio        # Open Drizzle Studio
 - Schema: `apps/server/src/db/schema.ts`
 - Migrations output: `apps/server/drizzle/`
 - Config: `apps/server/drizzle.config.ts`
+- Tables: `instances` (instance metadata, mods, resource packs) and `instanceConfigs` (config file storage with SHA-256 hashes)
 
 ## Auth
 
@@ -72,29 +73,36 @@ bun run db:studio        # Open Drizzle Studio
 - Sub-routers: `apps/server/src/trpc/routers/`
 - Desktop client: `apps/desktop/src/renderer/src/lib/trpc.ts` — imports `AppRouter` type from `@formallauncher/server/trpc`
 - Mounted at `/trpc/*` on the Hono server
+- Instance procedures: `list`, `get`, `upsert`, `delete`, `push` (sync upload), `pull` (sync download)
 
 ## Sync Model
 
-- Metadata + modpack URLs: instance settings, mod lists, JVM args, modpack source URLs
-- No file sync — mod and resource pack files are downloaded from Modrinth directly by the desktop client
-- Sync payload schema: `SyncPayloadSchema` in `packages/shared`
+- Syncs: instance metadata, mod lists (with enabled/disabled + versions), modpack version info, resource packs, config files, icons
+- No binary file sync — mod and resource pack JARs are downloaded from Modrinth directly by the desktop client
+- Conflict resolution: last-write-wins based on `updatedAt` timestamps
+- Push/pull sync via `instance.push` and `instance.pull` tRPC procedures
+- Config file storage: individual files max 256KB, total per instance max 5MB, allowed extensions: `.json`, `.toml`, `.cfg`, `.properties`, `.yaml`, `.yml`, `.txt`, `.conf`, `.ini`
+- Sync triggers: on login, on app startup (if logged in), debounced after mutations (10s), manual sync button
+- Schemas: `SyncPushInputSchema`, `SyncPullResponseSchema`, `InstanceSyncDataSchema` in `packages/shared`
 
 ## Modrinth
 
 - API calls happen from the Electron main process (not renderer)
 - No server proxy — desktop talks to Modrinth directly
-- Features: mod search/install, resource pack search/install, modpack support, multi-instance management
-- Example Modrinth API usage is implemented for display only (not yet wired to real functionality)
+- Fully integrated: search, project details, version filtering, hash lookup, mod/resource pack/modpack install with dependency resolution
 
 ## Features
 
-- Multi-instance management (create, configure, launch separate Minecraft instances)
-- Modpack instances from Modrinth modpack URLs
-- Mod search and installation from Modrinth
+**Fully implemented:**
+- Multi-instance management (create, configure, launch, import from Prism Launcher)
+- Modpack instances from Modrinth (download, extract, install with dependency resolution)
+- Mod search and installation from Modrinth (search, version filtering, auto-dependency install)
 - Resource pack search and installation from Modrinth
-- Skin editing
-- Microsoft account login for Minecraft
-- Custom Minecraft launch library (`packages/minecraft`)
+- Skin editing (upload, variant toggle, cape selection)
+- Microsoft account login for Minecraft (device code flow, token refresh)
+- Custom Minecraft launch library (version download, Java resolution, Fabric support, native extraction)
+- Modrinth API integration (search, project details, versions, hash lookup — called directly from desktop)
+- Server sync (bidirectional push/pull of instance metadata, mod lists, config files, modpack versions, resource packs, icons; last-write-wins conflict resolution; sync on login/startup/mutations + manual trigger)
 
 ## Environment Variables
 
