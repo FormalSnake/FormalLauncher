@@ -46,6 +46,7 @@ export const InstanceSchema = z.object({
   iconUrl: z.string().optional(),
   modpackProjectId: z.string().optional(),
   modpackVersionId: z.string().optional(),
+  lastPlayedAt: z.string().datetime().optional(),
   updatedAt: z.string().datetime().optional(),
 })
 export type Instance = z.infer<typeof InstanceSchema>

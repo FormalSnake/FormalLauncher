@@ -120,6 +120,9 @@ export function useLaunch() {
 
         setLaunching(null)
         setRunning(instanceId)
+        useInstancesStore
+          .getState()
+          .updateInstance(instanceId, { lastPlayedAt: new Date().toISOString() })
       } catch (err) {
         appendLog(
           `Launch failed: ${err instanceof Error ? err.message : String(err)}`,
