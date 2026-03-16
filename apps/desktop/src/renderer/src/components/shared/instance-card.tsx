@@ -17,6 +17,7 @@ import { useSettingsStore } from '@/store/settings.store'
 import { useLaunch } from '@/hooks/use-launch'
 import {
   IconMediaPlay,
+  IconMediaStop,
   IconDotsVertical,
   IconTrash,
   IconPencil,
@@ -34,7 +35,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
   const removeInstance = useInstancesStore((s) => s.removeInstance)
   const activeAccount = useMinecraftAccountsStore((s) => s.getActiveAccount())
   const { launchingInstanceId, runningInstanceId } = useGameStore()
-  const { launch } = useLaunch()
+  const { launch, stop } = useLaunch()
 
   const isThisLaunching = launchingInstanceId === instance.id
   const isThisRunning = runningInstanceId === instance.id
@@ -67,19 +68,33 @@ export function InstanceCard({ instance }: InstanceCardProps) {
         </CardTitle>
         <CardAction>
           <div className="flex items-center gap-1">
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              className={isThisRunning ? 'text-green-400' : 'text-primary'}
-              onClick={handlePlay}
-              disabled={isBusy}
-            >
-              {isThisLaunching ? (
-                <IconLoader className="size-4 animate-spin" />
-              ) : (
-                <IconMediaPlay className="size-4" />
-              )}
-            </Button>
+            {isThisRunning ? (
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                className="text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  stop()
+                }}
+              >
+                <IconMediaStop className="size-4" />
+              </Button>
+            ) : (
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                className="text-primary"
+                onClick={handlePlay}
+                disabled={isBusy}
+              >
+                {isThisLaunching ? (
+                  <IconLoader className="size-4 animate-spin" />
+                ) : (
+                  <IconMediaPlay className="size-4" />
+                )}
+              </Button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={

@@ -46,6 +46,7 @@ interface MinecraftAPI {
   getVersions(): Promise<VersionManifest>
   downloadGame(gameDir: string, versionId: string): Promise<void>
   launch(options: LaunchOptions): Promise<{ pid: number | undefined }>
+  kill(): Promise<void>
   authLogin(cacheDir: string): Promise<MinecraftAccount>
   authRefresh(cacheDir: string): Promise<MinecraftAccount>
   getDefaultGameDir(): Promise<string>

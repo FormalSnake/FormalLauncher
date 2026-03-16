@@ -28,6 +28,7 @@ import { useContentInstall } from '@/hooks/use-mod-install'
 import { useModrinthProjects, useModrinthHashLookup } from '@/hooks/use-modrinth'
 import {
   IconMediaPlay,
+  IconMediaStop,
   IconCube,
   IconLoader,
   IconShieldCheck,
@@ -43,7 +44,7 @@ export function InstanceDetailPage() {
   const activeAccount = useMinecraftAccountsStore((s) => s.getActiveAccount())
   const { launchingInstanceId, runningInstanceId, downloadProgress, gameLog } =
     useGameStore()
-  const { launch } = useLaunch()
+  const { launch, stop } = useLaunch()
   const { versions } = useVersions('release')
   const { removeMod, toggleMod, removeResourcePack } = useContentInstall()
 
@@ -207,22 +208,29 @@ export function InstanceDetailPage() {
             <Badge variant="secondary">{instance.minecraftVersion}</Badge>
             <LoaderBadge loader={instance.modLoader} />
           </div>
-          <Button
-            className="gap-2"
-            onClick={handlePlay}
-            disabled={isBusy}
-          >
-            {isThisLaunching ? (
-              <IconLoader className="size-4 animate-spin" />
-            ) : (
-              <IconMediaPlay className="size-4" />
-            )}
-            {isThisRunning
-              ? 'Running'
-              : isThisLaunching
-                ? 'Launching...'
-                : 'Play'}
-          </Button>
+          {isThisRunning ? (
+            <Button
+              className="gap-2"
+              variant="destructive"
+              onClick={() => stop()}
+            >
+              <IconMediaStop className="size-4" />
+              Stop
+            </Button>
+          ) : (
+            <Button
+              className="gap-2"
+              onClick={handlePlay}
+              disabled={isBusy}
+            >
+              {isThisLaunching ? (
+                <IconLoader className="size-4 animate-spin" />
+              ) : (
+                <IconMediaPlay className="size-4" />
+              )}
+              {isThisLaunching ? 'Launching...' : 'Play'}
+            </Button>
+          )}
         </div>
       </div>
 

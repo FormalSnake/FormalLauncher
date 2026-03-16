@@ -18,6 +18,7 @@ import type { DownloadProgress, GameProcess, LaunchOptions } from '@formallaunch
 import { sha1File } from '@formallauncher/minecraft'
 
 let mainWindow: BrowserWindow | null = null
+let activeGameProcess: GameProcess | null = null
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -67,6 +68,8 @@ function setupMinecraftIPC(): void {
       },
     })
 
+    activeGameProcess = process
+
     process.on('stdout', (data) => {
       mainWindow?.webContents.send('minecraft:stdout', data)
     })
@@ -74,10 +77,16 @@ function setupMinecraftIPC(): void {
       mainWindow?.webContents.send('minecraft:stderr', data)
     })
     process.on('exit', (code) => {
+      activeGameProcess = null
       mainWindow?.webContents.send('minecraft:exit', code)
     })
 
     return { pid: process.pid }
+  })
+
+  ipcMain.handle('minecraft:kill', () => {
+    activeGameProcess?.kill()
+    activeGameProcess = null
   })
 
   ipcMain.handle('minecraft:auth-login', async (_event, cacheDir: string) => {

@@ -27,6 +27,13 @@ export function useLaunch() {
 
   useEffect(() => cleanupAll, [cleanupAll])
 
+  const stop = useCallback(() => {
+    window.minecraft.kill()
+    setRunning(null)
+    setLaunching(null)
+    cleanupAll()
+  }, [setRunning, setLaunching, cleanupAll])
+
   const launch = useCallback(
     async (instanceId: string) => {
       if (runningInstanceId || launchingInstanceId) return
@@ -136,6 +143,7 @@ export function useLaunch() {
 
   return {
     launch,
+    stop,
     isDownloading: !!downloadProgress,
     isRunning: !!runningInstanceId,
     isLaunching: !!launchingInstanceId,

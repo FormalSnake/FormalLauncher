@@ -14,6 +14,7 @@ const minecraftAPI = {
     jvmArgs?: string[]
     ramMb?: number
   }) => ipcRenderer.invoke('minecraft:launch', options),
+  kill: () => ipcRenderer.invoke('minecraft:kill'),
   authLogin: (cacheDir: string) => ipcRenderer.invoke('minecraft:auth-login', cacheDir),
   authRefresh: (cacheDir: string) => ipcRenderer.invoke('minecraft:auth-refresh', cacheDir),
   getDefaultGameDir: () => ipcRenderer.invoke('minecraft:get-default-game-dir'),
