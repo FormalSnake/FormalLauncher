@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useOutletContext } from 'react-router'
+import type { AppShellContext } from '@/components/layout/app-shell'
 import { InstanceCard } from '@/components/shared/instance-card'
 import { SearchBar } from '@/components/shared/search-bar'
 import { Button } from '@/components/ui/button'
@@ -12,13 +13,14 @@ import { trpc } from '@/lib/trpc'
 import { IconPlus } from 'nucleo-pixel'
 
 export function InstancesPage() {
+  const { isOnline } = useOutletContext<AppShellContext>()
   const { instances } = useInstancesStore()
   const { sharedWithMe, setSharedWithMe } = useSharedInstancesStore()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
-  const sharedQuery = trpc.sharing.listSharedWithMe.useQuery()
+  const sharedQuery = trpc.sharing.listSharedWithMe.useQuery(undefined, { enabled: isOnline })
 
   useEffect(() => {
     if (sharedQuery.data) setSharedWithMe(sharedQuery.data)
@@ -53,12 +55,14 @@ export function InstancesPage() {
       <Tabs defaultValue="my-instances">
         <TabsList>
           <TabsTrigger value="my-instances">My Instances</TabsTrigger>
-          <TabsTrigger value="shared">
-            Shared with Me
-            {sharedWithMe.length > 0 && (
-              <Badge variant="secondary" className="ml-2">{sharedWithMe.length}</Badge>
-            )}
-          </TabsTrigger>
+          {isOnline && (
+            <TabsTrigger value="shared">
+              Shared with Me
+              {sharedWithMe.length > 0 && (
+                <Badge variant="secondary" className="ml-2">{sharedWithMe.length}</Badge>
+              )}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="my-instances" className="mt-4">
@@ -76,31 +80,33 @@ export function InstancesPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="shared" className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredShared.map((shared) => (
-              <div
-                key={shared.id}
-                className="cursor-pointer rounded-lg border p-4 transition-colors hover:bg-accent"
-                onClick={() => navigate(`/instances/${shared.instanceId}`)}
-              >
-                <div className="mb-2 font-medium">{shared.instanceName}</div>
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <Badge variant="secondary">{shared.minecraftVersion}</Badge>
-                  <Badge variant="outline">{shared.modLoader}</Badge>
+        {isOnline && (
+          <TabsContent value="shared" className="mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredShared.map((shared) => (
+                <div
+                  key={shared.id}
+                  className="cursor-pointer rounded-lg border p-4 transition-colors hover:bg-accent"
+                  onClick={() => navigate(`/instances/${shared.instanceId}`)}
+                >
+                  <div className="mb-2 font-medium">{shared.instanceName}</div>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <Badge variant="secondary">{shared.minecraftVersion}</Badge>
+                    <Badge variant="outline">{shared.modLoader}</Badge>
+                  </div>
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Shared by {shared.ownerUsername}#{shared.ownerFriendCode}
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Shared by {shared.ownerUsername}#{shared.ownerFriendCode}
-                </div>
-              </div>
-            ))}
-            {filteredShared.length === 0 && (
-              <p className="col-span-full text-center text-sm text-muted-foreground">
-                No shared instances. Friends can share instances with you!
-              </p>
-            )}
-          </div>
-        </TabsContent>
+              ))}
+              {filteredShared.length === 0 && (
+                <p className="col-span-full text-center text-sm text-muted-foreground">
+                  No shared instances. Friends can share instances with you!
+                </p>
+              )}
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )

@@ -60,7 +60,7 @@ export function LoginPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold tracking-tight">FormalLauncher</h1>
           <p className="text-sm text-muted-foreground">
-            Sign in to your account to continue
+            Sign in to sync, share, and chat with friends
           </p>
         </div>
 
@@ -162,6 +162,19 @@ export function LoginPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <div className="text-center">
+          <Button
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => navigate('/')}
+          >
+            Continue without account
+          </Button>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Minecraft features work without signing in
+          </p>
+        </div>
       </div>
     </div>
   )

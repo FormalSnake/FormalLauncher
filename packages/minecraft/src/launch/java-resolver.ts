@@ -93,11 +93,24 @@ export async function detectSystemJava(): Promise<DetectedJava[]> {
       ...(await findJavasInDir('C:\\Program Files\\Java', 'bin\\java.exe')),
     )
     candidates.push(
+      ...(await findJavasInDir('C:\\Program Files (x86)\\Java', 'bin\\java.exe')),
+    )
+    candidates.push(
       ...(await findJavasInDir(
         'C:\\Program Files\\Eclipse Adoptium',
         'bin\\java.exe',
       )),
     )
+    // Try PATH lookup via `where java`
+    try {
+      const { stdout } = await execFileAsync('where', ['java'], { timeout: 5000 })
+      for (const line of stdout.split('\n')) {
+        const p = line.trim()
+        if (p) candidates.push(p)
+      }
+    } catch {
+      // where command not found or no java in PATH
+    }
   }
 
   const detected: DetectedJava[] = []

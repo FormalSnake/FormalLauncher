@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, net, protocol, shell } from 'electron'
 import { join } from 'path'
+import { pathToFileURL } from 'node:url'
 import { is } from '@electron-toolkit/utils'
 import {
   fetchVersionManifest,
@@ -21,13 +22,14 @@ let mainWindow: BrowserWindow | null = null
 let activeGameProcess: GameProcess | null = null
 
 function createWindow(): void {
+  const isMac = process.platform === 'darwin'
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     minWidth: 700,
     minHeight: 500,
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 16, y: 22 },
+    titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
+    ...(isMac && { trafficLightPosition: { x: 16, y: 22 } }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -608,7 +610,7 @@ app.whenReady().then(() => {
     let filePath = url.pathname
     if (filePath === '/' || filePath === '') filePath = '/index.html'
     const fullPath = join(__dirname, '../renderer', filePath)
-    return net.fetch(`file://${fullPath}`)
+    return net.fetch(pathToFileURL(fullPath).href)
   })
 
   setupMinecraftIPC()

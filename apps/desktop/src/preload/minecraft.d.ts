@@ -116,8 +116,13 @@ interface MinecraftAPI {
   onExit(callback: (code: number | null) => void): () => void
 }
 
+interface PlatformAPI {
+  platform: 'darwin' | 'win32' | 'linux'
+}
+
 declare global {
   interface Window {
     minecraft: MinecraftAPI
+    platform: PlatformAPI
   }
 }

@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { getNativesDir, getLibrariesDir, ensureDir } from '../utils/paths'
 import type { ResolvedLibrary } from '../types'
+import AdmZip from 'adm-zip'
 
 export async function extractNatives(
   gameDir: string,
@@ -26,36 +27,21 @@ async function extractJar(
   destDir: string,
   exclude?: string[],
 ): Promise<void> {
-  // Use Node.js built-in zlib via a simple approach
-  // Extract using the unzip approach with yauzl or manual extraction
-  // For simplicity, use child_process to call jar/unzip
-  const { exec } = await import('node:child_process')
-  const { promisify } = await import('node:util')
-  const execAsync = promisify(exec)
-
   try {
-    // Try using jar command first (comes with Java)
-    await execAsync(`jar xf "${jarPath}"`, { cwd: destDir })
-  } catch {
-    try {
-      // Fallback to unzip
-      await execAsync(`unzip -o -q "${jarPath}" -d "${destDir}"`)
-    } catch {
-      // If both fail, skip this native — it may not be needed on this platform
-      console.warn(`Failed to extract native: ${jarPath}`)
-    }
-  }
+    const zip = new AdmZip(jarPath)
+    const entries = zip.getEntries()
 
-  // Clean up excluded files (like META-INF)
-  if (exclude) {
-    const { rm } = await import('node:fs/promises')
-    for (const pattern of exclude) {
-      const excludePath = join(destDir, pattern.replace('/', ''))
-      try {
-        await rm(excludePath, { recursive: true, force: true })
-      } catch {
-        // Ignore cleanup failures
+    for (const entry of entries) {
+      if (entry.isDirectory) continue
+
+      // Check if entry matches any exclusion pattern
+      if (exclude?.some((pattern) => entry.entryName.startsWith(pattern))) {
+        continue
       }
+
+      zip.extractEntryTo(entry, destDir, true, true)
     }
+  } catch {
+    console.warn(`Failed to extract native: ${jarPath}`)
   }
 }

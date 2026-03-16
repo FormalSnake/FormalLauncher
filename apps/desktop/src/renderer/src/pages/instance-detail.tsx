@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate, useOutletContext } from 'react-router'
+import type { AppShellContext } from '@/components/layout/app-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -69,6 +70,7 @@ export function InstanceDetailPage() {
   const [verifying, setVerifying] = useState(false)
   const [shareDialogFriend, setShareDialogFriend] = useState<string | null>(null)
 
+  const { isOnline } = useOutletContext<AppShellContext>()
   const { data: session } = authClient.useSession()
   const { friends } = useFriendsStore()
   const { conflicts, removeConflict } = useSharedInstancesStore()
@@ -84,7 +86,7 @@ export function InstanceDetailPage() {
     }
   }, [isThisLaunching])
 
-  const sharedByMeQuery = trpc.sharing.listSharedByMe.useQuery(undefined, { enabled: isOwner })
+  const sharedByMeQuery = trpc.sharing.listSharedByMe.useQuery(undefined, { enabled: isOwner && isOnline })
   const shareMutation = trpc.sharing.share.useMutation({
     onSuccess: () => sharedByMeQuery.refetch(),
   })
@@ -289,7 +291,7 @@ export function InstanceDetailPage() {
       )}
 
       {/* Conflict banner */}
-      {instanceConflicts.length > 0 && (
+      {isOnline && instanceConflicts.length > 0 && (
         <div className="mb-4 space-y-2">
           {instanceConflicts.map((conflict) => (
             <div key={conflict.id} className="flex items-center justify-between rounded-md border border-yellow-500/50 bg-yellow-500/10 p-3">
@@ -322,7 +324,7 @@ export function InstanceDetailPage() {
       )}
 
       {/* Sharing section */}
-      {isOwner && (
+      {isOwner && isOnline && (
         <div className="mb-4">
           <div className="flex flex-wrap items-center gap-2">
             {instanceShares?.sharedWith.map((sw) => (

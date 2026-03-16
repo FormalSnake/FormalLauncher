@@ -1,6 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+const platformAPI = {
+  platform: process.platform as 'darwin' | 'win32' | 'linux',
+}
+
 const minecraftAPI = {
   getVersions: () => ipcRenderer.invoke('minecraft:get-versions'),
   downloadGame: (gameDir: string, versionId: string) =>
@@ -114,9 +118,11 @@ const minecraftAPI = {
 if (process.contextIsolated) {
   contextBridge.exposeInMainWorld('electron', electronAPI)
   contextBridge.exposeInMainWorld('minecraft', minecraftAPI)
+  contextBridge.exposeInMainWorld('platform', platformAPI)
 } else {
   // @ts-expect-error - fallback for non-isolated context
   window.electron = electronAPI
   // @ts-expect-error - fallback for non-isolated context
   window.minecraft = minecraftAPI
+  window.platform = platformAPI
 }
