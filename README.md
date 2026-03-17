@@ -104,4 +104,4 @@ Sync runs automatically on login, on startup, and after mutations (debounced), w
 
 ## License
 
-All rights reserved.
+[MIT License](https://github.com/FormalSnake/FormalLauncher/blob/main/LICENSE)
