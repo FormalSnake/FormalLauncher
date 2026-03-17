@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, net, protocol, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, net, protocol, shell } from 'electron'
 import { join } from 'path'
 import { pathToFileURL } from 'node:url'
 import { is } from '@electron-toolkit/utils'
@@ -23,13 +23,17 @@ let activeGameProcess: GameProcess | null = null
 
 function createWindow(): void {
   const isMac = process.platform === 'darwin'
+  const isDark = nativeTheme.shouldUseDarkColors
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     minWidth: 700,
     minHeight: 500,
+    backgroundColor: isDark ? '#000000' : '#ffffff',
     titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
-    titleBarOverlay: isMac ? false : true,
+    titleBarOverlay: isMac
+      ? false
+      : { color: isDark ? '#000000' : '#ffffff', symbolColor: isDark ? '#ffffff' : '#000000' },
     ...(isMac && { trafficLightPosition: { x: 16, y: 22 } }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
