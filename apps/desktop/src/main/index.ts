@@ -29,6 +29,7 @@ function createWindow(): void {
     minWidth: 700,
     minHeight: 500,
     titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
+    titleBarOverlay: isMac ? false : true,
     ...(isMac && { trafficLightPosition: { x: 16, y: 22 } }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
