@@ -11,6 +11,12 @@ function App(): React.JSX.Element {
     useSettingsStore.getState().initialize()
   }, [])
 
+  useEffect(() => {
+    return window.app.onOpenProject((slug) => {
+      router.navigate('/browse/' + slug)
+    })
+  }, [])
+
   useUpdateToast()
 
   return (

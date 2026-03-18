@@ -115,6 +115,14 @@ const minecraftAPI = {
   },
 }
 
+const appAPI = {
+  onOpenProject: (cb: (slug: string) => void) => {
+    const handler = (_event: unknown, slug: string): void => cb(slug)
+    ipcRenderer.on('app:open-project', handler)
+    return () => ipcRenderer.removeListener('app:open-project', handler)
+  },
+}
+
 const updatesAPI = {
   onUpdateAvailable: (cb: () => void) => {
     const handler = (): void => cb()
@@ -144,6 +152,7 @@ if (process.contextIsolated) {
   contextBridge.exposeInMainWorld('minecraft', minecraftAPI)
   contextBridge.exposeInMainWorld('platform', platformAPI)
   contextBridge.exposeInMainWorld('updates', updatesAPI)
+  contextBridge.exposeInMainWorld('app', appAPI)
 } else {
   // @ts-expect-error - fallback for non-isolated context
   window.electron = electronAPI
@@ -152,4 +161,6 @@ if (process.contextIsolated) {
   window.platform = platformAPI
   // @ts-expect-error - fallback for non-isolated context
   window.updates = updatesAPI
+  // @ts-expect-error - fallback for non-isolated context
+  window.app = appAPI
 }

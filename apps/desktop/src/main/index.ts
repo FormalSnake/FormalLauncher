@@ -22,6 +22,11 @@ import { sha1File } from '@formallauncher/minecraft'
 let mainWindow: BrowserWindow | null = null
 let activeGameProcess: GameProcess | null = null
 
+function modrinthProjectSlug(url: string): string | null {
+  const m = url.match(/^https?:\/\/modrinth\.com\/(?:mod|modpack|resourcepack|datapack|shader|plugin)\/([^/?#]+)/)
+  return m ? m[1] : null
+}
+
 function createWindow(): void {
   const isMac = process.platform === 'darwin'
   const isDark = nativeTheme.shouldUseDarkColors
@@ -43,8 +48,24 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
+    const slug = modrinthProjectSlug(details.url)
+    if (slug) {
+      mainWindow?.webContents.send('app:open-project', slug)
+    } else {
+      shell.openExternal(details.url)
+    }
     return { action: 'deny' }
+  })
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('http://localhost') || url.startsWith('app://')) return
+    event.preventDefault()
+    const slug = modrinthProjectSlug(url)
+    if (slug) {
+      mainWindow?.webContents.send('app:open-project', slug)
+    } else {
+      shell.openExternal(url)
+    }
   })
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {

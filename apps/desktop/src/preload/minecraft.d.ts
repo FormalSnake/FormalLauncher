@@ -128,10 +128,15 @@ interface UpdatesAPI {
   restartAndInstall: () => Promise<void>
 }
 
+interface AppAPI {
+  onOpenProject: (cb: (slug: string) => void) => () => void
+}
+
 declare global {
   interface Window {
     minecraft: MinecraftAPI
     platform: PlatformAPI
     updates: UpdatesAPI
+    app: AppAPI
   }
 }
