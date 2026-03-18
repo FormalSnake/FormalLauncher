@@ -621,7 +621,11 @@ function setupAutoUpdater(): void {
   })
 
   autoUpdater.on('error', (err) => {
-    mainWindow?.webContents.send('update:error', err.message)
+    // Strip noisy HTTP details — keep only the first human-readable line
+    const raw = err.message ?? 'Unknown error'
+    const firstLine = raw.split('\n')[0]
+    const truncated = firstLine.length > 120 ? firstLine.slice(0, 120) + '…' : firstLine
+    mainWindow?.webContents.send('update:error', truncated)
   })
 }
 
