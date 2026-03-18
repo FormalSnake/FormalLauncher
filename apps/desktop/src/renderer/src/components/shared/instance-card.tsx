@@ -47,6 +47,7 @@ export function InstanceCard({ instance }: InstanceCardProps) {
       navigate('/accounts')
       return
     }
+    navigate(`/instances/${instance.id}`)
     launch(instance.id)
   }
 

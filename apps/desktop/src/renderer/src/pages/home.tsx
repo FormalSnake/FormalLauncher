@@ -32,6 +32,7 @@ export function HomePage() {
       navigate('/accounts')
       return
     }
+    navigate(`/instances/${lastInstance.id}`)
     launch(lastInstance.id)
   }
 
