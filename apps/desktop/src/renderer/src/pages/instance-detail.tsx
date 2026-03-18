@@ -27,6 +27,7 @@ import { useVersions } from '@/hooks/use-versions'
 import { useLaunch } from '@/hooks/use-launch'
 import { useContentInstall } from '@/hooks/use-mod-install'
 import { useModrinthProjects, useModrinthHashLookup } from '@/hooks/use-modrinth'
+import { useBulkLinkMods } from '@/hooks/use-bulk-link-mods'
 import {
   IconMediaPlay,
   IconMediaStop,
@@ -37,6 +38,7 @@ import {
   IconImage,
   IconUserPlus,
   IconCircleWarning,
+  IconLink,
 } from 'nucleo-pixel'
 import { authClient } from '@/lib/auth-client'
 import { trpc } from '@/lib/trpc'
@@ -54,6 +56,7 @@ export function InstanceDetailPage() {
   const { launch, stop } = useLaunch()
   const { versions } = useVersions('release')
   const { removeMod, toggleMod, removeResourcePack } = useContentInstall()
+  const { linkAll, isLinking } = useBulkLinkMods(id ?? '')
 
   const [activeTab, setActiveTab] = useState('overview')
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
@@ -98,6 +101,11 @@ export function InstanceDetailPage() {
   })
 
   const instanceShares = sharedByMeQuery.data?.find((s) => s.instanceId === id)
+
+  const unlinkedModCount = useMemo(
+    () => (instance?.mods ?? []).filter((m) => /^[a-f0-9]{40}$/.test(m.projectId)).length,
+    [instance?.mods],
+  )
 
   // Collect project IDs missing iconUrl for batch fetch
   const missingIconIds = useMemo(() => {
@@ -380,15 +388,33 @@ export function InstanceDetailPage() {
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Mods</h2>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => navigate('/browse?tab=mod')}
-                >
-                  <IconPlus className="size-4" />
-                  Add Mods
-                </Button>
+                <div className="flex gap-2">
+                  {unlinkedModCount > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={linkAll}
+                      disabled={isLinking}
+                    >
+                      {isLinking ? (
+                        <IconLoader className="size-4 animate-spin" />
+                      ) : (
+                        <IconLink className="size-4" />
+                      )}
+                      Link to Modrinth
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => navigate('/browse?tab=mod')}
+                  >
+                    <IconPlus className="size-4" />
+                    Add Mods
+                  </Button>
+                </div>
               </div>
               {(instance.mods ?? []).length > 0 ? (
                 <ContentTable
