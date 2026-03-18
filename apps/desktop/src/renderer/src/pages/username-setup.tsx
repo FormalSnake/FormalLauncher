@@ -13,7 +13,7 @@ export function UsernameSetupPage() {
 
   const setupMutation = trpc.profile.setup.useMutation({
     onSuccess: async () => {
-      await utils.profile.get.invalidate()
+      await utils.profile.get.refetch()
       navigate('/')
     },
     onError: (err) => {
