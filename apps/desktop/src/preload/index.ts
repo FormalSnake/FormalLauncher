@@ -115,14 +115,41 @@ const minecraftAPI = {
   },
 }
 
+const updatesAPI = {
+  onUpdateAvailable: (cb: () => void) => {
+    const handler = (): void => cb()
+    ipcRenderer.on('update:available', handler)
+    return () => ipcRenderer.removeListener('update:available', handler)
+  },
+  onDownloadProgress: (cb: (data: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => {
+    const handler = (_event: unknown, data: { percent: number; bytesPerSecond: number; transferred: number; total: number }): void => cb(data)
+    ipcRenderer.on('update:download-progress', handler)
+    return () => ipcRenderer.removeListener('update:download-progress', handler)
+  },
+  onUpdateDownloaded: (cb: () => void) => {
+    const handler = (): void => cb()
+    ipcRenderer.on('update:downloaded', handler)
+    return () => ipcRenderer.removeListener('update:downloaded', handler)
+  },
+  onError: (cb: (msg: string) => void) => {
+    const handler = (_event: unknown, msg: string): void => cb(msg)
+    ipcRenderer.on('update:error', handler)
+    return () => ipcRenderer.removeListener('update:error', handler)
+  },
+  restartAndInstall: () => ipcRenderer.invoke('update:restart-and-install'),
+}
+
 if (process.contextIsolated) {
   contextBridge.exposeInMainWorld('electron', electronAPI)
   contextBridge.exposeInMainWorld('minecraft', minecraftAPI)
   contextBridge.exposeInMainWorld('platform', platformAPI)
+  contextBridge.exposeInMainWorld('updates', updatesAPI)
 } else {
   // @ts-expect-error - fallback for non-isolated context
   window.electron = electronAPI
   // @ts-expect-error - fallback for non-isolated context
   window.minecraft = minecraftAPI
   window.platform = platformAPI
+  // @ts-expect-error - fallback for non-isolated context
+  window.updates = updatesAPI
 }

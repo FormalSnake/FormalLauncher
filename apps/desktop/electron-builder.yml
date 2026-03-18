@@ -8,6 +8,14 @@ files:
   - '!electron.vite.config.*'
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc,.env,.env.*}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+publish:
+  provider: github
+  owner: FormalSnake
+  repo: FormalLauncher
+nsis:
+  oneClick: true
+  perMachine: false
+  differentialPackage: true
 mac:
   target:
     - dmg
@@ -17,7 +25,9 @@ win:
   target:
     - nsis
     - zip
+  artifactName: ${name}-${version}-${arch}.${ext}
 linux:
   target:
     - AppImage
     - deb
+  artifactName: ${name}-${version}-${arch}.${ext}

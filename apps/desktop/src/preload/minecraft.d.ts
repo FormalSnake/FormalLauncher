@@ -120,9 +120,18 @@ interface PlatformAPI {
   platform: 'darwin' | 'win32' | 'linux'
 }
 
+interface UpdatesAPI {
+  onUpdateAvailable: (cb: () => void) => () => void
+  onDownloadProgress: (cb: (data: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void
+  onUpdateDownloaded: (cb: () => void) => () => void
+  onError: (cb: (msg: string) => void) => () => void
+  restartAndInstall: () => Promise<void>
+}
+
 declare global {
   interface Window {
     minecraft: MinecraftAPI
     platform: PlatformAPI
+    updates: UpdatesAPI
   }
 }

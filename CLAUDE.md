@@ -112,6 +112,20 @@ Set in `apps/server/.env` (see `.env.example`):
 - `BETTER_AUTH_SECRET` — Secret for Better Auth session signing
 - `BETTER_AUTH_URL` — Base URL for auth callbacks (e.g., `http://localhost:3000`)
 
+## Release Process
+
+To publish a new release:
+1. Update `version` in `apps/desktop/package.json`
+2. Commit the change
+3. Create and push a version tag:
+   ```bash
+   git tag v<version>
+   git push origin v<version>
+   ```
+4. GitHub Actions builds Windows (x64), macOS (x64 + arm64), and Linux (x64) automatically and publishes to GitHub Releases.
+
+The `GH_TOKEN` (GITHUB_TOKEN) secret is provided automatically by GitHub Actions — no manual secret setup needed.
+
 ## Key Conventions
 
 - Zod schemas live in `packages/shared/src/schemas/` — both desktop and server import from here

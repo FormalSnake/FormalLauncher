@@ -1,4 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, net, protocol, shell } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import { join } from 'path'
 import { pathToFileURL } from 'node:url'
 import { is } from '@electron-toolkit/utils'
@@ -594,6 +595,39 @@ function setupMinecraftIPC(): void {
   )
 }
 
+// ── Auto Updater ──
+
+function setupAutoUpdater(): void {
+  if (!app.isPackaged) return
+
+  autoUpdater.checkForUpdates()
+
+  autoUpdater.on('update-available', () => {
+    mainWindow?.webContents.send('update:available')
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow?.webContents.send('update:download-progress', {
+      percent: Math.round(progress.percent),
+      bytesPerSecond: progress.bytesPerSecond,
+      transferred: progress.transferred,
+      total: progress.total,
+    })
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow?.webContents.send('update:downloaded')
+  })
+
+  autoUpdater.on('error', (err) => {
+    mainWindow?.webContents.send('update:error', err.message)
+  })
+}
+
+ipcMain.handle('update:restart-and-install', () => {
+  autoUpdater.quitAndInstall()
+})
+
 // Register app:// as a privileged scheme before app is ready.
 // This makes Chromium treat it as a secure origin for cookies/CORS.
 protocol.registerSchemesAsPrivileged([
@@ -620,6 +654,7 @@ app.whenReady().then(() => {
 
   setupMinecraftIPC()
   createWindow()
+  setupAutoUpdater()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
