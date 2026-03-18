@@ -31,3 +31,4 @@ linux:
     - AppImage
     - deb
   artifactName: ${productName}-${version}-${arch}.${ext}
+  category: Game
