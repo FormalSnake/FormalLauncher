@@ -6,12 +6,14 @@ interface SettingsState {
   defaultRamMb: number
   defaultJvmArgs: string
   javaPath: string
+  theme: 'system' | 'light' | 'dark'
   initialized: boolean
   initialize: () => Promise<void>
   setGameDirectory: (dir: string) => void
   setDefaultRamMb: (mb: number) => void
   setDefaultJvmArgs: (args: string) => void
   setJavaPath: (path: string) => void
+  setTheme: (theme: 'system' | 'light' | 'dark') => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -21,6 +23,7 @@ export const useSettingsStore = create<SettingsState>()(
       defaultRamMb: 4096,
       defaultJvmArgs: '',
       javaPath: 'java',
+      theme: 'system',
       initialized: false,
 
       initialize: async () => {
@@ -37,6 +40,7 @@ export const useSettingsStore = create<SettingsState>()(
       setDefaultRamMb: (mb) => set({ defaultRamMb: mb }),
       setDefaultJvmArgs: (args) => set({ defaultJvmArgs: args }),
       setJavaPath: (path) => set({ javaPath: path }),
+      setTheme: (theme) => set({ theme }),
     }),
     {
       name: 'formallauncher-settings',
@@ -45,6 +49,7 @@ export const useSettingsStore = create<SettingsState>()(
         defaultRamMb: state.defaultRamMb,
         defaultJvmArgs: state.defaultJvmArgs,
         javaPath: state.javaPath,
+        theme: state.theme,
       }),
     },
   ),

@@ -17,9 +17,11 @@ export function SettingsPage() {
     defaultRamMb,
     defaultJvmArgs,
     javaPath,
+    theme,
     setDefaultRamMb,
     setDefaultJvmArgs,
     setJavaPath,
+    setTheme,
   } = useSettingsStore()
 
   return (
@@ -84,11 +86,13 @@ export function SettingsPage() {
           </h2>
           <div className="grid gap-2">
             <Label>Theme</Label>
-            <Select defaultValue="dark">
+            <Select value={theme} onValueChange={(v) => setTheme(v as 'system' | 'light' | 'dark')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="system">System</SelectItem>
+                <SelectItem value="light">Light</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
               </SelectContent>
             </Select>
