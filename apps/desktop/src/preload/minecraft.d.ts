@@ -139,4 +139,5 @@ declare global {
     updates: UpdatesAPI
     app: AppAPI
   }
+  const __APP_VERSION__: string
 }

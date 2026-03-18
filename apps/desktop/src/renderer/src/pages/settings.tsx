@@ -106,7 +106,7 @@ export function SettingsPage() {
             About
           </h2>
           <div className="space-y-1 text-sm text-muted-foreground">
-            <p>FormalLauncher v0.0.1</p>
+            <p>FormalLauncher v{__APP_VERSION__}</p>
             <p>Electron + React + Tailwind CSS</p>
           </div>
         </section>
