@@ -8,13 +8,13 @@ export const trpcClient = trpc.createClient({
     splitLink({
       condition: (op) => op.type === 'subscription',
       true: unstable_httpSubscriptionLink({
-        url: 'http://localhost:3000/trpc',
+        url: `${import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3000'}/trpc`,
         eventSourceOptions: () => ({
           withCredentials: true,
         }),
       }),
       false: httpBatchLink({
-        url: 'http://localhost:3000/trpc',
+        url: `${import.meta.env.VITE_SERVER_URL ?? 'http://localhost:3000'}/trpc`,
         fetch(url, options) {
           return fetch(url, { ...options, credentials: 'include' })
         },
